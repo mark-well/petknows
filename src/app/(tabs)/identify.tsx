@@ -30,7 +30,7 @@ export default function Identify() {
           icon={<Lucide name="upload" size={24} color="#000" />}
           title="Upload Photo"
           subTitle="Select an image from your device"
-          onPress={pickImageAsync}
+          onPress={() => alert("Not implemented yer")}
         />
         <IconButton
           icon={<Ionicons name="camera-outline" size={24} color="#fff" />}
