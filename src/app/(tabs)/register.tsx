@@ -276,6 +276,7 @@ export default function Register() {
                     setFormData({ ...formData, petName: text })
                   }
                   value={formData?.petName}
+                  placeholderTextColor="hsl(0 0% 60%)"
                 />
               </View>
 
@@ -289,6 +290,7 @@ export default function Register() {
                   save="key"
                   inputStyles={{ textTransform: "capitalize" }}
                   dropdownTextStyles={{ textTransform: "capitalize" }}
+                  search={false}
                 />
               </View>
             </View>
@@ -312,6 +314,7 @@ export default function Register() {
                     save="key"
                     inputStyles={{ textTransform: "capitalize" }}
                     dropdownTextStyles={{ textTransform: "capitalize" }}
+                    search={false}
                   />
                 </View>
 
@@ -324,6 +327,7 @@ export default function Register() {
                       save="key"
                       inputStyles={{ textTransform: "capitalize" }}
                       dropdownTextStyles={{ textTransform: "capitalize" }}
+                      search={false}
                     />
                   ) : (
                     <View style={styles.disabledSelectList}>

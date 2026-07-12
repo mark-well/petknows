@@ -5,14 +5,22 @@ type Props = PropsWithChildren<{
   theme?: "primary";
   onPress?: () => void;
   disabled?: boolean;
+  style?: Object;
 }>;
 
-export default function Button({ children, theme, onPress, disabled }: Props) {
+export default function Button({
+  children,
+  theme,
+  onPress,
+  disabled,
+  style,
+}: Props) {
   if (theme == "primary") {
     return (
       <View
         style={[
           styles.buttonContainer,
+          style,
           {
             backgroundColor: disabled ? "hsl(0, 0%, 70%)" : "#000",
           },
@@ -30,6 +38,7 @@ export default function Button({ children, theme, onPress, disabled }: Props) {
       <View
         style={[
           styles.buttonContainer,
+          style,
           {
             backgroundColor: disabled ? "hsl(0, 0%, 40%)" : "#000",
           },

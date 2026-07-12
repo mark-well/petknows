@@ -1,9 +1,12 @@
+import { useAuth } from "@/providers/AuthContext";
 import { Entypo } from "@react-native-vector-icons/entypo";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { Tabs } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 export default function TabLayout() {
+  const { signOut } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
@@ -35,10 +38,18 @@ export default function TabLayout() {
             paddingLeft: 16,
             marginRight: 8,
           },
+          headerRightContainerStyle: {
+            paddingRight: 16,
+          },
           headerLeft: () => (
             <View style={styles.logo}>
               <Ionicons name="camera-outline" size={24} color="#fff" />
             </View>
+          ),
+          headerRight: () => (
+            <Pressable onPress={() => signOut()}>
+              <Ionicons name="exit-outline" size={32} color="#000" />
+            </Pressable>
           ),
         }}
       />

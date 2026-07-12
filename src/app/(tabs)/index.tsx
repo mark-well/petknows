@@ -1,3 +1,4 @@
+import { useAuth } from "@/providers/AuthContext";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Lucide } from "@react-native-vector-icons/lucide";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -10,7 +11,7 @@ export default function Index() {
     { name: "Bird", count: 8 },
   ];
   const totalPetsRegistered = species.reduce((sum, pet) => sum + pet.count, 0);
-  const username = "Mark Well";
+  const { userProfile } = useAuth();
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ rowGap: 32 }}>
@@ -19,7 +20,9 @@ export default function Index() {
         <Text style={styles.heroTitle}>Welcome to PetKnows</Text>
         <Text style={styles.heroSubTitle}>
           Hello,{" "}
-          <Text style={{ fontWeight: "bold", color: "#000" }}>{username}!</Text>{" "}
+          <Text style={{ fontWeight: "bold", color: "#000" }}>
+            {userProfile?.first_name} {userProfile?.last_name}!
+          </Text>{" "}
           Manage your pet registrations and identifications.
         </Text>
       </View>
