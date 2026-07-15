@@ -1,4 +1,6 @@
+import { SignupFormType } from "@/types";
 import { JwtPayload } from "@supabase/supabase-js";
+import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { supabase } from "../../lib/supabase";
@@ -7,6 +9,7 @@ type AuthContextType = {
   claims: JwtPayload | undefined;
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUp: (signupForm: SignupFormType) => Promise<void>;
   signOut: () => void;
   userProfile: UserProfile | undefined;
 };
@@ -52,6 +55,7 @@ export default function AuthProvider({ children }: Props) {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  // Get the user's profile from the database
   const getUserProfile = async (
     userId: string | undefined,
   ): Promise<UserProfile | undefined> => {
@@ -82,6 +86,7 @@ export default function AuthProvider({ children }: Props) {
     setLoading(false);
   };
 
+  // Sign out
   const signOut = async () => {
     setLoading(true);
     const { error } = await supabase.auth.signOut();
@@ -90,9 +95,45 @@ export default function AuthProvider({ children }: Props) {
     setLoading(false);
   };
 
+  const signUp = async (signupForm: SignupFormType) => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signUp({
+        email: signupForm.email,
+        password: signupForm.password,
+      });
+
+      if (error) {
+        if (error) throw error;
+      }
+
+      if (data.user && data.session) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            first_name: signupForm.firstName,
+            last_name: signupForm.lastName,
+            birth_date: signupForm.birthDate,
+            address: signupForm.fullAddress,
+          })
+          .eq("id", data.user.id);
+
+        if (error) {
+          if (error) throw error;
+        }
+        router.replace("/(tabs)");
+      }
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ claims, loading, signInWithEmail, userProfile, signOut }}
+      value={{ claims, loading, signInWithEmail, userProfile, signOut, signUp }}
     >
       {children}
     </AuthContext.Provider>

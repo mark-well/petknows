@@ -5,14 +5,14 @@ type Props = PropsWithChildren<{
   theme?: "primary";
   onPress?: () => void;
   disabled?: boolean;
-  style?: Object;
+  style?: object;
 }>;
 
 export default function Button({
   children,
   theme,
   onPress,
-  disabled,
+  disabled = false,
   style,
 }: Props) {
   if (theme == "primary") {
@@ -45,9 +45,7 @@ export default function Button({
         ]}
       >
         <Pressable style={styles.button} onPress={onPress} disabled={disabled}>
-          <Text style={[styles.text, { color: disabled ? "#000" : "#fff" }]}>
-            {children}
-          </Text>
+          <Text style={[styles.text, { color: "#fff" }]}>{children}</Text>
         </Pressable>
       </View>
     </>

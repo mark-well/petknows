@@ -1,7 +1,9 @@
 import { useAuth } from "@/providers/AuthContext";
+import { Link } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
+import { default as Input, default as InputText } from "./InputText";
 
 export default function Login() {
   const { signInWithEmail, loading } = useAuth();
@@ -24,22 +26,20 @@ export default function Login() {
   return (
     <View style={styles.container}>
       {loading && <Text>Logging you in</Text>}
-      <View style={{ width: "100%" }}>
-        <Text>Email: </Text>
-        <TextInput
-          style={styles.input}
+      <View style={{ width: "100%", rowGap: 8 }}>
+        <Text style={styles.text}>Email</Text>
+        <InputText
           placeholder="Enter your email"
           placeholderTextColor="hsl(0 0% 60%)"
           onChangeText={(text) => setEmail(text)}
         />
       </View>
 
-      <View style={{ width: "100%" }}>
-        <Text>Password: </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your email"
-          placeholderTextColor="hsl(0 0% 60%)"
+      <View style={{ width: "100%", rowGap: 8 }}>
+        <Text style={styles.text}>Password</Text>
+        <Input
+          placeholder="Enter your password"
+          secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
         />
       </View>
@@ -47,6 +47,15 @@ export default function Login() {
       <Button style={{ flex: 0, width: "100%" }} onPress={handleSignIn}>
         Login
       </Button>
+
+      <View>
+        <Text style={[styles.text, { color: "hsl(0, 0%, 30%)" }]}>
+          Don't have an account?{" "}
+          <Link href={"/signup"} style={{ color: "#000" }}>
+            Register here
+          </Link>
+        </Text>
+      </View>
     </View>
   );
 }
@@ -62,6 +71,10 @@ const styles = StyleSheet.create({
     rowGap: 16,
   },
 
+  text: {
+    fontSize: 16,
+  },
+
   input: {
     borderWidth: 1,
     borderColor: "hsl(0 0% 80%)",
@@ -70,5 +83,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
+    fontSize: 16,
+    lineHeight: 16 * 1.3,
   },
 });

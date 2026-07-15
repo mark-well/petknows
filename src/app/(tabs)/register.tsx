@@ -1,4 +1,5 @@
 import Button from "@/components/Button";
+import { SelectListType } from "@/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
 import { decode } from "base64-arraybuffer";
@@ -31,11 +32,6 @@ enum PetStatus {
   registered = "registered",
   missing = "missing",
 }
-
-type SelectListType = {
-  key: string;
-  value: string;
-};
 
 export default function Register() {
   const [step, setStep] = useState<number>(1);
@@ -79,9 +75,9 @@ export default function Register() {
 
   const getMunicipalities = async (provinceId: string) => {
     const { data, error } = await supabase
-      .from("municipalities")
-      .select("key:id, value:name")
-      .eq("province", provinceId)
+      .from("mao")
+      .select("key:id, value:name, addresses (province)")
+      .eq("addresses.province_id", provinceId)
       .overrideTypes<SelectListType[]>();
     if (!error) {
       setCities(data ?? []);
@@ -319,7 +315,9 @@ export default function Register() {
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>City</Text>
+                  <Text style={styles.inputLabel}>
+                    Municipal Agriculture Office
+                  </Text>
                   {selectedProvince ? (
                     <SelectList
                       data={cities}
