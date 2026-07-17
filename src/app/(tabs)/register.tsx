@@ -1,8 +1,10 @@
 import Button from "@/components/Button";
+import { useAuth } from "@/providers/AuthContext";
 import { SelectListType } from "@/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
 import { decode } from "base64-arraybuffer";
+import { File } from "expo-file-system";
 import * as FileSystem from "expo-file-system/legacy";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
@@ -32,8 +34,9 @@ enum PetStatus {
   registered = "registered",
   missing = "missing",
 }
-
 export default function Register() {
+  const snnApiUrl = process.env.EXPO_PUBLIC_MODEL_BACKEND_URL;
+  const { claims } = useAuth();
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<PetRegistrationForm>();
   const [selectedImage, setSelectedImage] = useState<
@@ -46,6 +49,7 @@ export default function Register() {
   const [selectedPetType, setSelectedPetType] = useState<string>();
   const [selectedCity, setSelectedCity] = useState<string>();
   const [selectedPetSpecies, setSelectedPetSpecies] = useState<string>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Fetch provinces
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function Register() {
   const getMunicipalities = async (provinceId: string) => {
     const { data, error } = await supabase
       .from("mao")
-      .select("key:id, value:name, addresses (province)")
+      .select("key:id, value:name, addresses (province_id)")
       .eq("addresses.province_id", provinceId)
       .overrideTypes<SelectListType[]>();
     if (!error) {
@@ -115,6 +119,24 @@ export default function Register() {
     }
   };
 
+  const uploadPetAvatar = async (file: ImagePicker.ImagePickerAsset) => {
+    const base64 = await convertImageToBase64(file);
+    const contentType = file.mimeType || "image/jpeg";
+    const fileName = `${Date.now()}_${file.fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from("pet_avatars")
+      .upload(`private/${fileName}`, decode(base64), {
+        contentType: contentType,
+      });
+
+    if (!error) {
+      return data;
+    } else {
+      console.log(error);
+    }
+  };
+
   const canProceedStep1 =
     formData?.petName &&
     formData.petSpeciesId &&
@@ -125,58 +147,39 @@ export default function Register() {
     if (canProceedStep1 && canSubmit) {
       const petAvatarFromDb = await uploadPetAvatar(selectedImage);
       const statusId = await getPetStatusIdFromDb(PetStatus.registered);
+      const petImageEmbedding: number[] = await getEmbedding(selectedImage);
       const completePetRecord = buildRegisterPetForm(
+        claims?.sub,
         formData,
         petAvatarFromDb?.path,
         statusId,
-        [
-          -0.018724544, 0.0871729, -0.1338118, 0.24561365, -0.0108350925,
-          0.01926025, 0.09412708, 0.19504897, -0.06505953, -0.01001002,
-          0.13896921, -0.043924224, 0.016643455, -0.06955613, -0.016381823,
-          0.11011992, -0.05095357, 0.009413234, 0.024169184, -0.037141968,
-          -0.12720415, -0.12939934, -0.09602696, -0.048552617, -0.13127334,
-          -0.17314415, -0.0026629816, -0.15020667, -0.03952566, -0.04382802,
-          0.14478123, 0.09656204, -0.049164396, 0.06667282, -0.03793976,
-          0.060693976, -0.01161344, 0.096060686, 0.072679006, -0.15139507,
-          0.0039623957, -0.1412226, 0.05238393, 0.0045834216, 0.15702435,
-          -0.058405098, 0.098531544, -0.02498881, -0.046516, -0.07364081,
-          -0.034715533, -0.07524352, 0.0026773424, 0.016683629, 0.01937853,
-          0.020065058, -0.049041618, 0.17989154, 0.0201712, -0.07567347,
-          -0.017638657, 0.056118302, 0.05148049, 0.051670425, 0.111042894,
-          0.112765275, 0.07729869, 0.034142613, 0.049187686, 0.032354448,
-          0.0033249746, -0.017411683, -0.084852874, 0.074786134, -0.033911124,
-          0.108146034, 0.18113731, 0.004715255, 0.040752836, 0.044108223,
-          0.19789125, 0.034513433, -0.09932174, 0.04851853, 0.0038872752,
-          0.055277817, 0.028886179, 0.12419873, -0.014938769, -0.02669604,
-          0.21174173, 0.018644162, -0.07833555, -0.069901496, -0.00581578,
-          -0.007438498, -0.14577791, -0.09476656, 0.12729424, 0.016608737,
-          -0.05513015, -0.10585093, 0.09114717, 0.033886686, -0.0026676871,
-          -0.05077771, -0.01941989, 0.06543434, 0.023029046, -0.034317747,
-          -0.007958519, 0.010344064, 0.19510737, -0.06683947, 0.009731004,
-          0.077590734, -0.21087244, 0.018573664, 0.100717746, -0.12431518,
-          -0.15657404, 0.0019534305, -0.05297001, -0.12865219, 0.070936695,
-          0.026608618, -0.12076236, 0.069251925,
-        ],
+        petImageEmbedding,
       );
 
-      const { data, error } = await supabase.from("pets").insert({
-        type: completePetRecord.petSpecies,
-        name: completePetRecord.petName,
-        status: completePetRecord.petStatusId,
-        owner: completePetRecord.ownerId,
-        place_of_registration: completePetRecord.placeOfRegistrationId,
-        avatar_url: completePetRecord.avatarUrl,
-        embedding: completePetRecord.embedding,
-      });
+      try {
+        setLoading(true);
+        const { data, error } = await supabase.from("pets").insert({
+          type: completePetRecord.petSpecies,
+          name: completePetRecord.petName,
+          status: completePetRecord.petStatusId,
+          owner: completePetRecord.ownerId,
+          place_of_registration: completePetRecord.placeOfRegistrationId,
+          avatar_url: completePetRecord.avatarUrl,
+          embedding: completePetRecord.embedding,
+        });
 
-      // TODO: ADD LOADING BARRR
-      if (!error) {
-      } else {
+        if (error) throw error;
+        console.log(data);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   const buildRegisterPetForm = (
+    user_id: string | undefined,
     formData: PetRegistrationForm,
     avatarUrl: string | undefined,
     petStatusId: string,
@@ -186,7 +189,7 @@ export default function Register() {
       petName: formData.petName,
       petSpecies: formData.petSpeciesId,
       petStatusId: petStatusId,
-      ownerId: "ca56cd1c-619e-4274-b3bc-3db09ffb8418",
+      ownerId: user_id,
       placeOfRegistrationId: formData.placeOfRegistrationId,
       avatarUrl: avatarUrl,
       embedding: embedding,
@@ -201,19 +204,24 @@ export default function Register() {
     });
   };
 
-  const uploadPetAvatar = async (file: ImagePicker.ImagePickerAsset) => {
-    const base64 = await convertImageToBase64(file);
-    const contentType = file.mimeType || "image/jpeg";
-    const fileName = `${Date.now()}_${file.fileName}`;
+  const getEmbedding = async (image: ImagePicker.ImagePickerAsset) => {
+    const file = new File(image.uri);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const { data, error } = await supabase.storage
-      .from("pet_avatars")
-      .upload(`public/${fileName}`, decode(base64), {
-        contentType: contentType,
+    try {
+      setLoading(true);
+      const response = await fetch(`${snnApiUrl}/get_embedding`, {
+        method: "POST",
+        body: formData,
       });
 
-    if (!error) {
-      return data;
+      const data = await response.json();
+      if (data) return data.embedding;
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -426,7 +434,11 @@ export default function Register() {
           </Button>
         )}
         {step === 2 && (
-          <Button theme="primary" onPress={registerPet} disabled={!canSubmit}>
+          <Button
+            theme="primary"
+            onPress={registerPet}
+            disabled={!canSubmit || loading}
+          >
             Rigister
           </Button>
         )}
