@@ -8,10 +8,23 @@ import { StyleSheet, Text, View } from "react-native";
 export default function Identify() {
   //Open the image picker
   const pickImageAsync = async () => {
-    let result = ImagePicker.launchImageLibraryAsync({
+    let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
       allowsEditing: true,
       quality: 1,
+    });
+
+    if (!result.canceled) {
+      navigateToResultScreen(result.assets[0].uri);
+    }
+  };
+
+  const navigateToResultScreen = (imageUri: string) => {
+    router.push({
+      pathname: "/result-screen",
+      params: {
+        data: imageUri,
+      },
     });
   };
 
@@ -31,7 +44,7 @@ export default function Identify() {
           icon={<Lucide name="upload" size={24} color="#000" />}
           title="Upload Photo"
           subTitle="Select an image from your device"
-          onPress={() => alert("Not implemented yer")}
+          onPress={pickImageAsync}
         />
         <IconButton
           icon={<Ionicons name="camera-outline" size={24} color="#fff" />}
