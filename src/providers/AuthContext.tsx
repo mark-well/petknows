@@ -3,6 +3,7 @@ import { JwtPayload } from "@supabase/supabase-js";
 import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
+import { Database } from "../../database.types";
 import { supabase } from "../../lib/supabase";
 
 type AuthContextType = {
@@ -18,15 +19,16 @@ type Props = {
   children: React.ReactNode;
 };
 
-type UserProfile = {
-  id: string;
-  email: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  birth_date: string | null;
-  created_at: string | null;
-  address: string | null;
-};
+// type UserProfile = {
+//   id: string;
+//   email: string | null;
+//   first_name: string | null;
+//   last_name: string | null;
+//   birth_date: Date | null;
+//   created_at: string | null;
+//   address: string | null;
+// };
+type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -113,7 +115,7 @@ export default function AuthProvider({ children }: Props) {
           .update({
             first_name: signupForm.firstName,
             last_name: signupForm.lastName,
-            birth_date: signupForm.birthDate,
+            birth_date: signupForm.birthDate?.toISOString(),
             address: signupForm.fullAddress,
           })
           .eq("id", data.user.id);

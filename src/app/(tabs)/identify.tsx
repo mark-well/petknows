@@ -2,6 +2,7 @@ import IconButton from "@/components/IconButton";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Lucide } from "@react-native-vector-icons/lucide";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function Identify() {
@@ -37,7 +38,7 @@ export default function Identify() {
           title="Live Camera"
           subTitle="Use your camera to scan the pet"
           theme="primary"
-          onPress={() => alert("Not implemented yer")}
+          onPress={() => router.push("/live-camera")}
         />
       </View>
     </View>

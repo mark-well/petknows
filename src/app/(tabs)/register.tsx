@@ -1,4 +1,5 @@
 import Button from "@/components/Button";
+import LoadingModal from "@/components/LoadingModal";
 import { useAuth } from "@/providers/AuthContext";
 import { SelectListType } from "@/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
@@ -50,6 +51,10 @@ export default function Register() {
   const [selectedCity, setSelectedCity] = useState<string>();
   const [selectedPetSpecies, setSelectedPetSpecies] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [registrationSuccess, setRegistrationSuccess] =
+    useState<boolean>(false);
+  const [registrationFailed, setRegistrationFailed] = useState<boolean>(false);
+  const [showLoadingModal, setShowLoadingModal] = useState<boolean>(false);
 
   // Fetch provinces
   useEffect(() => {
@@ -144,6 +149,7 @@ export default function Register() {
   const canSubmit = selectedImage;
 
   const registerPet = async () => {
+    setShowLoadingModal(true);
     if (canProceedStep1 && canSubmit) {
       const petAvatarFromDb = await uploadPetAvatar(selectedImage);
       const statusId = await getPetStatusIdFromDb(PetStatus.registered);
@@ -156,6 +162,12 @@ export default function Register() {
         petImageEmbedding,
       );
 
+      if (!petImageEmbedding) {
+        // Alert.alert("Registration Failed", "Registration aborted");
+        setRegistrationFailed(true);
+        return;
+      }
+
       try {
         setLoading(true);
         const { data, error } = await supabase.from("pets").insert({
@@ -165,24 +177,29 @@ export default function Register() {
           owner: completePetRecord.ownerId,
           place_of_registration: completePetRecord.placeOfRegistrationId,
           avatar_url: completePetRecord.avatarUrl,
-          embedding: completePetRecord.embedding,
+          embedding: toVectorLiteral(completePetRecord.embedding),
         });
 
         if (error) throw error;
         console.log(data);
+        setRegistrationSuccess(true);
       } catch (e) {
         console.log(e);
+        setRegistrationFailed(true);
       } finally {
         setLoading(false);
       }
     }
   };
 
+  const toVectorLiteral = (embedding: number[]): string =>
+    `[${embedding.join(",")}]`;
+
   const buildRegisterPetForm = (
     user_id: string | undefined,
     formData: PetRegistrationForm,
     avatarUrl: string | undefined,
-    petStatusId: string,
+    petStatusId: string | undefined,
     embedding: number[],
   ) => {
     let data = {
@@ -237,13 +254,27 @@ export default function Register() {
     }
   };
 
-  const generateEmbedding = async () => {};
+  const closeLoadingModal = () => {
+    setRegistrationSuccess(false);
+    setLoading(false);
+    setRegistrationFailed(false);
+    setShowLoadingModal(false);
+  };
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ flexGrow: 1 }}
     >
+      {showLoadingModal && (
+        <LoadingModal
+          loading={loading}
+          failed={registrationFailed}
+          success={registrationSuccess}
+          onClose={closeLoadingModal}
+        />
+      )}
+
       <View style={styles.stepBarContainer}>
         {[1, 2].map((s) => (
           <View
