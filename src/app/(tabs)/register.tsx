@@ -67,11 +67,6 @@ export default function Register() {
     if (selectedProvince) getMunicipalities(selectedProvince);
   }, [selectedProvince]);
 
-  // Fetch pet species
-  useEffect(() => {
-    getPetSpecies();
-  }, []);
-
   const getProvinces = async () => {
     const { data, error } = await supabase
       .from("address_province")
@@ -90,16 +85,6 @@ export default function Register() {
       .overrideTypes<SelectListType[]>();
     if (!error) {
       setCities(data ?? []);
-    }
-  };
-
-  const getPetSpecies = async () => {
-    const { data, error } = await supabase
-      .from("pet_type")
-      .select("key:id, value:name")
-      .overrideTypes<SelectListType[]>();
-    if (!error) {
-      setPetSpecies(data ?? []);
     }
   };
 
@@ -171,7 +156,7 @@ export default function Register() {
       try {
         setLoading(true);
         const { data, error } = await supabase.from("pets").insert({
-          type: completePetRecord.petSpecies,
+          pet_type: completePetRecord.petSpecies,
           name: completePetRecord.petName,
           status: completePetRecord.petStatusId,
           owner: completePetRecord.ownerId,
@@ -183,6 +168,7 @@ export default function Register() {
         if (error) throw error;
         console.log(data);
         setRegistrationSuccess(true);
+        resetInputs();
       } catch (e) {
         console.log(e);
         setRegistrationFailed(true);
@@ -190,6 +176,16 @@ export default function Register() {
         setLoading(false);
       }
     }
+  };
+
+  const resetInputs = () => {
+    setFormData({});
+    setSelectedImage(undefined);
+    setSelectedPetSpecies(undefined);
+    setSelectedPetType(undefined);
+    setSelectedCity(undefined);
+    setSelectedProvince(undefined);
+    setStep(1);
   };
 
   const toVectorLiteral = (embedding: number[]): string =>
@@ -317,15 +313,13 @@ export default function Register() {
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Species</Text>
-                <SelectList
-                  data={petSpecies}
-                  setSelected={(key: string) =>
-                    setFormData({ ...formData, petSpeciesId: key })
-                  }
-                  save="key"
-                  inputStyles={{ textTransform: "capitalize" }}
-                  dropdownTextStyles={{ textTransform: "capitalize" }}
-                  search={false}
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. dog, cat"
+                  placeholderTextColor="hsl(0 0% 60%)"
+                  onChangeText={(text) => {
+                    setFormData({ ...formData, petSpeciesId: text });
+                  }}
                 />
               </View>
             </View>

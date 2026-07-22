@@ -36,7 +36,6 @@ export default function PetCard({ pet, confidence }: Props) {
 
   useEffect(() => {
     fetchPetPhoto();
-    fetchPetSpecies();
     fetchPetStatus();
     fetchPlaceOfRegistration();
     fetchOwnerInformation();
@@ -50,21 +49,6 @@ export default function PetCard({ pet, confidence }: Props) {
         .getPublicUrl(pet.avatar_url);
 
       if (data) setPetPhoto(data.publicUrl);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const fetchPetSpecies = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("pet_type")
-        .select("*")
-        .eq("id", pet.type)
-        .single();
-
-      if (error) throw error;
-      setPetSpecies(data.name);
     } catch (e) {
       console.log(e);
     }
@@ -208,7 +192,7 @@ export default function PetCard({ pet, confidence }: Props) {
 
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Species</Text>
-              <Text style={styles.attribute}>{petSpecies}</Text>
+              <Text style={styles.attribute}>{pet.pet_type}</Text>
               <View style={styles.line}></View>
             </View>
 
@@ -219,7 +203,7 @@ export default function PetCard({ pet, confidence }: Props) {
             </View>
 
             <View style={styles.attributeContainer}>
-              <Text style={styles.attributeTitle}>Place of registration</Text>
+              <Text style={styles.attributeTitle}>Registered at</Text>
               <Text style={styles.attribute}>{placeOfRegistration}</Text>
               <View style={styles.line}></View>
             </View>

@@ -186,24 +186,6 @@ export type Database = {
         }
         Relationships: []
       }
-      pet_type: {
-        Row: {
-          created_at: string
-          id: string
-          name: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string | null
-        }
-        Relationships: []
-      }
       pets: {
         Row: {
           avatar_url: string | null
@@ -213,9 +195,9 @@ export type Database = {
           id: string
           name: string | null
           owner: string | null
+          pet_type: string | null
           place_of_registration: string | null
           status: string | null
-          type: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -225,9 +207,9 @@ export type Database = {
           id?: string
           name?: string | null
           owner?: string | null
+          pet_type?: string | null
           place_of_registration?: string | null
           status?: string | null
-          type?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -237,9 +219,9 @@ export type Database = {
           id?: string
           name?: string | null
           owner?: string | null
+          pet_type?: string | null
           place_of_registration?: string | null
           status?: string | null
-          type?: string | null
         }
         Relationships: [
           {
@@ -261,13 +243,6 @@ export type Database = {
             columns: ["status"]
             isOneToOne: false
             referencedRelation: "pet_status"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pets_type_fkey"
-            columns: ["type"]
-            isOneToOne: false
-            referencedRelation: "pet_type"
             referencedColumns: ["id"]
           },
         ]
@@ -336,7 +311,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_species_counts:
+        | {
+            Args: never
+            Returns: {
+              count: number
+              name: string
+            }[]
+          }
+        | {
+            Args: { uid: string }
+            Returns: {
+              count: number
+              name: string
+            }[]
+          }
     }
     Enums: {
       [_ in never]: never

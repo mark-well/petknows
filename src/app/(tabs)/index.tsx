@@ -1,17 +1,51 @@
+import IconButton from "@/components/IconButton";
 import { useAuth } from "@/providers/AuthContext";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Lucide } from "@react-native-vector-icons/lucide";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { supabase } from "../../../lib/supabase";
+
+type SpeciesCount = {
+  name: string;
+  count: number;
+};
 
 export default function Index() {
   // Mock data
-  const species = [
-    { name: "Dog", count: 5 },
-    { name: "Cat", count: 5 },
-    { name: "Bird", count: 8 },
-  ];
-  const totalPetsRegistered = species.reduce((sum, pet) => sum + pet.count, 0);
+  // const species = [
+  //   { name: "Dog", count: 5 },
+  //   { name: "Cat", count: 5 },
+  //   { name: "Bird", count: 8 },
+  // ];
+  const [species, setSpecies] = useState<SpeciesCount[]>([]);
+  const [totalPetsRegistered, setTotalPetRegistered] = useState<number>(0);
   const { userProfile } = useAuth();
+
+  //Fetch species counts
+  useEffect(() => {
+    getPetCount();
+  }, [userProfile]);
+
+  //Count total pets
+  useEffect(() => {
+    setTotalPetRegistered(species.reduce((sum, pet) => sum + pet.count, 0));
+  }, [species]);
+
+  const getPetCount = async () => {
+    if (!userProfile) return;
+    try {
+      const { data, error } = await supabase.rpc("get_species_counts", {
+        uid: userProfile.id,
+      });
+
+      if (error) throw error;
+      setSpecies(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ rowGap: 32 }}>
@@ -73,43 +107,35 @@ export default function Index() {
             <Text style={{ fontWeight: "medium" }}>Species Breakdown</Text>
           </View>
 
-          <View style={styles.speciesContainer}>
-            {species.map((pet) => (
-              <View style={styles.speciesRow} key={pet.name}>
-                <Text style={styles.speciesTitle}>{pet.name}</Text>
-                <View style={styles.barContainer}>
-                  <View style={styles.bar}>
-                    <View
-                      style={[
-                        styles.innerBar,
-                        {
-                          width: `${(pet.count / totalPetsRegistered) * 100}%`,
-                        },
-                      ]}
-                    ></View>
+          {species.length > 0 ? (
+            <View style={styles.speciesContainer}>
+              {species.map((pet) => (
+                <View style={styles.speciesRow} key={pet.name}>
+                  <Text style={styles.speciesTitle}>{pet.name}</Text>
+                  <View style={styles.barContainer}>
+                    <View style={styles.bar}>
+                      <View
+                        style={[
+                          styles.innerBar,
+                          {
+                            width: `${(pet.count / totalPetsRegistered) * 100}%`,
+                          },
+                        ]}
+                      ></View>
+                    </View>
+                    <Text style={styles.speciesCount}>{pet.count}</Text>
                   </View>
-                  <Text style={styles.speciesCount}>{pet.count}</Text>
                 </View>
-              </View>
-            ))}
-
-            {/* <View style={styles.speciesRow}>
-              <Text style={styles.speciesTitle}>Cat</Text>
-              <View style={styles.barContainer}>
-                <View style={styles.bar}>
-                  <View
-                    style={[styles.innerBar, { width: `${(5 / 16) * 100}%` }]}
-                  ></View>
-                </View>
-                <Text style={styles.speciesCount}>5</Text>
-              </View>
-            </View> */}
-          </View>
+              ))}
+            </View>
+          ) : (
+            <Text>You have no registered pet.</Text>
+          )}
         </View>
       </View>
 
       {/* Quick Actions card*/}
-      {/* <View style={styles.quickActionsContainer}>
+      <View style={styles.quickActionsContainer}>
         <Text style={{ fontSize: 20, fontWeight: "medium" }}>
           Quick Actions
         </Text>
@@ -120,7 +146,7 @@ export default function Index() {
           title="Register New Pet"
           subTitle="Add a pet to the system"
           onPress={() => {
-            return;
+            router.push("/(tabs)/register");
           }}
         />
 
@@ -129,10 +155,10 @@ export default function Index() {
           title="Identify Pet"
           subTitle="Find a pet by photo"
           onPress={() => {
-            return;
+            router.push("/identify");
           }}
         />
-      </View> */}
+      </View>
     </ScrollView>
   );
 }
