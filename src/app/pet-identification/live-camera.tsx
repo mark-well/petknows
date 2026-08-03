@@ -56,7 +56,7 @@ export default function LiveCamera() {
 
   const navigateToResultScreen = (imageUri: string) => {
     router.push({
-      pathname: "/result-screen",
+      pathname: "/pet-identification/screens/ResultScreen",
       params: {
         data: imageUri,
       },

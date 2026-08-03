@@ -11,18 +11,18 @@ export function RootLayoutNav() {
       <Stack.Protected guard={!!claims}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>
+
       <Stack.Protected guard={!claims}>
-        <Stack.Screen
-          name="index"
-          options={{ title: "Login", headerShown: false }}
-        />
-        <Stack.Screen name="signup" options={{ title: "Signup" }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       </Stack.Protected>
 
       {/* Available to everyone */}
-      <Stack.Screen name="live-camera" options={{ title: "Live Camera" }} />
       <Stack.Screen
-        name="result-screen"
+        name="pet-identification/live-camera"
+        options={{ title: "Live Camera" }}
+      />
+      <Stack.Screen
+        name="pet-identification/screens/ResultScreen"
         options={{ title: "Identificaiton Results" }}
       />
     </Stack>

@@ -2,8 +2,11 @@ import { useAuth } from "@/providers/AuthContext";
 import { Link } from "expo-router";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
-import Button from "./Button";
-import { default as Input, default as InputText } from "./InputText";
+import Button from "../../components/Button";
+import {
+  default as Input,
+  default as InputText,
+} from "../../components/InputText";
 
 export default function Login() {
   const { signInWithEmail, loading } = useAuth();
