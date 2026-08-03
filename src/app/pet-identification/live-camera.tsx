@@ -13,21 +13,6 @@ export default function LiveCamera() {
   const cameraRef = useRef<CameraView | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  if (!permission) {
-    return <View />;
-  }
-
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>
-          We need your permission to show the camera
-        </Text>
-        <Button onPress={requestPermission}> Grant Permission </Button>
-      </View>
-    );
-  }
-
   const toggleCameraFacing = () => {
     setFacing((current) => (current === "back" ? "front" : "back"));
   };
@@ -62,6 +47,24 @@ export default function LiveCamera() {
       },
     });
   };
+
+  if (!permission) {
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>
+          We need your permission to show the camera.
+        </Text>
+        <Button style={{ flex: 0 }} onPress={requestPermission}>
+          {" "}
+          Grant Permission{" "}
+        </Button>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
@@ -142,10 +145,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
+    paddingHorizontal: 32,
+    gap: 16,
   },
   message: {
     textAlign: "center",
     paddingBottom: 10,
+    fontSize: 16,
+    color: "hsl(0 0% 30%)",
   },
 
   preview: {
