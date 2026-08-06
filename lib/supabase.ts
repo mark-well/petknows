@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import "expo-sqlite/localStorage/install";
 import { AppState, Platform } from "react-native";
 import "react-native-url-polyfill/auto";
-import type { Database } from "../database.types";
+import type { Database } from "../src/types/database.types";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabasePublishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;

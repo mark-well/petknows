@@ -3,8 +3,8 @@ import { JwtPayload } from "@supabase/supabase-js";
 import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
-import { Database } from "../../database.types";
 import { supabase } from "../../lib/supabase";
+import { Database } from "../types/database.types";
 
 type AuthContextType = {
   claims: JwtPayload | undefined;

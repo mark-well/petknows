@@ -1,9 +1,9 @@
-import PetCard from "@/components/PetCard";
 import { File } from "expo-file-system";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import PetCard from "../components/PetCard";
 
 type topMatchesProps = {
   pet: any;

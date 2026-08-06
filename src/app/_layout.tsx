@@ -22,7 +22,7 @@ export function RootLayoutNav() {
         options={{ title: "Live Camera" }}
       />
       <Stack.Screen
-        name="pet-identification/screens/ResultScreen"
+        name="pet-identification/result"
         options={{ title: "Identificaiton Results" }}
       />
     </Stack>
