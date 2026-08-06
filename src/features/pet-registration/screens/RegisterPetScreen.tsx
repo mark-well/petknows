@@ -1,15 +1,14 @@
 import Button from "@/components/Button";
 import LoadingModal from "@/components/LoadingModal";
 import { useAuth } from "@/providers/AuthContext";
-import { SelectListType } from "@/types";
+import { getEmbedding } from "@/shared/services/getImageEmbedding";
+import { pickImageAsync } from "@/shared/services/imagePicker";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
-import { decode } from "base64-arraybuffer";
-import { File } from "expo-file-system";
-import * as FileSystem from "expo-file-system/legacy";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   Pressable,
   ScrollView,
@@ -20,6 +19,9 @@ import {
 } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { supabase } from "../../../../lib/supabase";
+import { getMunicipalities, getProvinces } from "../services";
+import { uploadPetAvatar } from "../services/uploadPetAvatar";
+import { SelectListType } from "../types";
 
 type PetRegistrationForm = {
   petName?: string;
@@ -31,18 +33,26 @@ type PetRegistrationForm = {
   embedding?: number[];
 };
 
+type RegisterPetForm = {
+  petName: string;
+  petSpeciesId: string;
+  ownerId: string;
+  statusId: string;
+  placeOfRegistrationId: string;
+};
+
 enum PetStatus {
   registered = "registered",
   missing = "missing",
 }
 export default function RegisterPetScreen() {
-  const snnApiUrl = process.env.EXPO_PUBLIC_MODEL_BACKEND_URL;
   const { claims } = useAuth();
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState<number>(2);
+  const { control } = useForm<RegisterPetForm>();
+
   const [formData, setFormData] = useState<PetRegistrationForm>();
-  const [selectedImage, setSelectedImage] = useState<
-    ImagePicker.ImagePickerAsset | undefined
-  >(undefined);
+  const [selectedImage, setSelectedImage] =
+    useState<ImagePicker.ImagePickerAsset | null>(null);
   const [provinces, setProvinces] = useState<SelectListType[]>([]);
   const [cities, setCities] = useState<SelectListType[]>([]);
   const [petSpecies, setPetSpecies] = useState<SelectListType[]>([]);
@@ -59,33 +69,19 @@ export default function RegisterPetScreen() {
   // Fetch provinces
   useEffect(() => {
     getProvinces();
-  }, [selectedProvince]);
+  });
 
   // Fetch cities
   useEffect(() => {
-    setCities([]);
+    setCities([]); //Clear the current cities array
     if (selectedProvince) getMunicipalities(selectedProvince);
   }, [selectedProvince]);
 
-  const getProvinces = async () => {
-    const { data, error } = await supabase
-      .from("address_province")
-      .select("key:id, value:name")
-      .overrideTypes<SelectListType[]>();
-    if (!error) {
-      setProvinces(data ?? []);
-    }
-  };
-
-  const getMunicipalities = async (provinceId: string) => {
-    const { data, error } = await supabase
-      .from("mao")
-      .select("key:id, value:name, addresses (province_id)")
-      .eq("addresses.province_id", provinceId)
-      .overrideTypes<SelectListType[]>();
-    if (!error) {
-      setCities(data ?? []);
-    }
+  // === HANDLERS ===
+  const handleImagePicker = async () => {
+    const asset = await pickImageAsync(true);
+    setSelectedImage(asset);
+    console.log(asset);
   };
 
   const handleProvinceSelection = (key: string) => {
@@ -95,36 +91,6 @@ export default function RegisterPetScreen() {
   const handleCitySelection = (key: string) => {
     setSelectedCity(key);
     setFormData({ ...formData, placeOfRegistrationId: key });
-  };
-
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0]);
-    }
-  };
-
-  const uploadPetAvatar = async (file: ImagePicker.ImagePickerAsset) => {
-    const base64 = await convertImageToBase64(file);
-    const contentType = file.mimeType || "image/jpeg";
-    const fileName = `${Date.now()}_${file.fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from("pet_avatars")
-      .upload(`private/${fileName}`, decode(base64), {
-        contentType: contentType,
-      });
-
-    if (!error) {
-      return data;
-    } else {
-      console.log(error);
-    }
   };
 
   const canProceedStep1 =
@@ -180,7 +146,7 @@ export default function RegisterPetScreen() {
 
   const resetInputs = () => {
     setFormData({});
-    setSelectedImage(undefined);
+    setSelectedImage(null);
     setSelectedPetSpecies(undefined);
     setSelectedPetType(undefined);
     setSelectedCity(undefined);
@@ -209,33 +175,6 @@ export default function RegisterPetScreen() {
     };
 
     return data;
-  };
-
-  const convertImageToBase64 = async (file: ImagePicker.ImagePickerAsset) => {
-    return await FileSystem.readAsStringAsync(file.uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-  };
-
-  const getEmbedding = async (image: ImagePicker.ImagePickerAsset) => {
-    const file = new File(image.uri);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      setLoading(true);
-      const response = await fetch(`${snnApiUrl}/get_embedding`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (data) return data.embedding;
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const getPetStatusIdFromDb = async (statusName: PetStatus) => {
@@ -300,15 +239,19 @@ export default function RegisterPetScreen() {
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Pet Name</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter pet's name"
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, petName: text })
-                  }
-                  value={formData?.petName}
-                  placeholderTextColor="hsl(0 0% 60%)"
-                />
+                <Controller
+                  control={control}
+                  name="petName"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter pet's name"
+                      onChangeText={onChange}
+                      value={value}
+                      placeholderTextColor="hsl(0 0% 60%)"
+                    />
+                  )}
+                ></Controller>
               </View>
 
               <View style={styles.inputContainer}>
@@ -409,7 +352,7 @@ export default function RegisterPetScreen() {
                       top: -10,
                     }}
                   >
-                    <Pressable onPress={() => setSelectedImage(undefined)}>
+                    <Pressable onPress={() => setSelectedImage(null)}>
                       <Ionicons name="close" size={24} color="hsl(0 0% 100%)" />
                     </Pressable>
                   </View>
@@ -432,7 +375,7 @@ export default function RegisterPetScreen() {
                 }}
               >
                 <View style={styles.uploadButtonContainer}>
-                  <Pressable onPress={pickImage}>
+                  <Pressable onPress={handleImagePicker}>
                     <Lucide name="upload" size={64} color="hsl(0, 0%, 60%)" />
                   </Pressable>
                 </View>

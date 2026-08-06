@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { supabase } from "../../../../lib/supabase";
-import { Database } from "../../../types/database.types";
+import { Database } from "../../../shared/types/database.types";
 
 type Props = {
   pet: any;

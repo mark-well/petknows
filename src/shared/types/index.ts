@@ -1,8 +1,3 @@
-export type SelectListType = {
-  key: string;
-  value: string;
-};
-
 export type SignupFormType = {
   firstName: string;
   lastName: string;

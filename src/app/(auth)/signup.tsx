@@ -2,7 +2,7 @@ import Button from "@/components/Button";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import InputText from "@/components/InputText";
 import { useAuth } from "@/providers/AuthContext";
-import { SignupFormType } from "@/types";
+import { SignupFormType } from "@/shared/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";

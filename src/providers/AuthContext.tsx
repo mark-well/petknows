@@ -1,10 +1,10 @@
-import { SignupFormType } from "@/types";
+import { SignupFormType } from "@/shared/types";
 import { JwtPayload } from "@supabase/supabase-js";
 import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { supabase } from "../../lib/supabase";
-import { Database } from "../types/database.types";
+import { Database } from "../shared/types/database.types";
 
 type AuthContextType = {
   claims: JwtPayload | undefined;
