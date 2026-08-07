@@ -1,5 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
-import { SelectListType } from "../types";
+import { PetStatus, SelectListType } from "../types";
 
 // Get all provinces in the database
 export async function getProvinces() {
@@ -22,4 +22,19 @@ export async function getMunicipalities(provinceId: string) {
 
   if (error) return [];
   return data;
+}
+
+export const getPetStatusIdFromDb = async (statusName: PetStatus) => {
+  const { data, error } = await supabase
+    .from("pet_status")
+    .select("id, name")
+    .eq("name", statusName)
+    .single();
+
+  if (error) throw error;
+  return data.id;
+};
+
+export function toVectorLiteral(embedding: number[]): string {
+  return `[${embedding.join(",")}]`;
 }

@@ -1,224 +1,48 @@
 import Button from "@/components/Button";
-import LoadingModal from "@/components/LoadingModal";
 import { useAuth } from "@/providers/AuthContext";
-import { getEmbedding } from "@/shared/services/getImageEmbedding";
-import { pickImageAsync } from "@/shared/services/imagePicker";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
 import { Image } from "expo-image";
-import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Controller } from "react-hook-form";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
-import { supabase } from "../../../../lib/supabase";
-import { getMunicipalities, getProvinces } from "../services";
-import { uploadPetAvatar } from "../services/uploadPetAvatar";
-import { SelectListType } from "../types";
+import { useRegisterPet } from "../hooks/useRegisterPet";
+import { RegisterPetForm } from "../types";
 
-type PetRegistrationForm = {
-  petName?: string;
-  petSpeciesId?: string;
-  ownerId?: string;
-  statusId?: string;
-  placeOfRegistrationId?: string;
-  avatarUrl?: string;
-  embedding?: number[];
-};
-
-type RegisterPetForm = {
-  petName: string;
-  petSpeciesId: string;
-  ownerId: string;
-  statusId: string;
-  placeOfRegistrationId: string;
-};
-
-enum PetStatus {
-  registered = "registered",
-  missing = "missing",
-}
 export default function RegisterPetScreen() {
   const { claims } = useAuth();
-  const [step, setStep] = useState<number>(2);
-  const { control } = useForm<RegisterPetForm>();
-
-  const [formData, setFormData] = useState<PetRegistrationForm>();
-  const [selectedImage, setSelectedImage] =
-    useState<ImagePicker.ImagePickerAsset | null>(null);
-  const [provinces, setProvinces] = useState<SelectListType[]>([]);
-  const [cities, setCities] = useState<SelectListType[]>([]);
-  const [petSpecies, setPetSpecies] = useState<SelectListType[]>([]);
-  const [selectedProvince, setSelectedProvince] = useState<string>();
-  const [selectedPetType, setSelectedPetType] = useState<string>();
-  const [selectedCity, setSelectedCity] = useState<string>();
-  const [selectedPetSpecies, setSelectedPetSpecies] = useState<string>();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [registrationSuccess, setRegistrationSuccess] =
-    useState<boolean>(false);
-  const [registrationFailed, setRegistrationFailed] = useState<boolean>(false);
-  const [showLoadingModal, setShowLoadingModal] = useState<boolean>(false);
-
-  // Fetch provinces
-  useEffect(() => {
-    getProvinces();
-  });
-
-  // Fetch cities
-  useEffect(() => {
-    setCities([]); //Clear the current cities array
-    if (selectedProvince) getMunicipalities(selectedProvince);
-  }, [selectedProvince]);
+  const {
+    step,
+    previousStep,
+    nextStep,
+    handleImagePicker,
+    selectedImage,
+    removeSelectedImage,
+    selectedProvince,
+    provinces,
+    updateSelectedProvice,
+    municipalAgricultureOffices,
+    control,
+    watch,
+    handleSubmit,
+  } = useRegisterPet();
 
   // === HANDLERS ===
-  const handleImagePicker = async () => {
-    const asset = await pickImageAsync(true);
-    setSelectedImage(asset);
-    console.log(asset);
-  };
-
   const handleProvinceSelection = (key: string) => {
-    setSelectedProvince(key);
+    updateSelectedProvice(key);
   };
 
-  const handleCitySelection = (key: string) => {
-    setSelectedCity(key);
-    setFormData({ ...formData, placeOfRegistrationId: key });
-  };
-
-  const canProceedStep1 =
-    formData?.petName &&
-    formData.petSpeciesId &&
-    formData.placeOfRegistrationId;
+  const canProceedStep1 = watch("petName") && watch("petSpeciesId") && watch("placeOfRegistrationId");
   const canSubmit = selectedImage;
-
-  const registerPet = async () => {
-    setShowLoadingModal(true);
-    if (canProceedStep1 && canSubmit) {
-      const petAvatarFromDb = await uploadPetAvatar(selectedImage);
-      const statusId = await getPetStatusIdFromDb(PetStatus.registered);
-      const petImageEmbedding: number[] = await getEmbedding(selectedImage);
-      const completePetRecord = buildRegisterPetForm(
-        claims?.sub,
-        formData,
-        petAvatarFromDb?.path,
-        statusId,
-        petImageEmbedding,
-      );
-
-      if (!petImageEmbedding) {
-        // Alert.alert("Registration Failed", "Registration aborted");
-        setRegistrationFailed(true);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const { data, error } = await supabase.from("pets").insert({
-          pet_type: completePetRecord.petSpecies,
-          name: completePetRecord.petName,
-          status: completePetRecord.petStatusId,
-          owner: completePetRecord.ownerId,
-          place_of_registration: completePetRecord.placeOfRegistrationId,
-          avatar_url: completePetRecord.avatarUrl,
-          embedding: toVectorLiteral(completePetRecord.embedding),
-        });
-
-        if (error) throw error;
-        console.log(data);
-        setRegistrationSuccess(true);
-        resetInputs();
-      } catch (e) {
-        console.log(e);
-        setRegistrationFailed(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const resetInputs = () => {
-    setFormData({});
-    setSelectedImage(null);
-    setSelectedPetSpecies(undefined);
-    setSelectedPetType(undefined);
-    setSelectedCity(undefined);
-    setSelectedProvince(undefined);
-    setStep(1);
-  };
-
-  const toVectorLiteral = (embedding: number[]): string =>
-    `[${embedding.join(",")}]`;
-
-  const buildRegisterPetForm = (
-    user_id: string | undefined,
-    formData: PetRegistrationForm,
-    avatarUrl: string | undefined,
-    petStatusId: string | undefined,
-    embedding: number[],
-  ) => {
-    let data = {
-      petName: formData.petName,
-      petSpecies: formData.petSpeciesId,
-      petStatusId: petStatusId,
-      ownerId: user_id,
-      placeOfRegistrationId: formData.placeOfRegistrationId,
-      avatarUrl: avatarUrl,
-      embedding: embedding,
-    };
-
-    return data;
-  };
-
-  const getPetStatusIdFromDb = async (statusName: PetStatus) => {
-    const { data, error } = await supabase
-      .from("pet_status")
-      .select("id, name")
-      .eq("name", statusName)
-      .single();
-
-    if (!error) {
-      return data.id;
-    }
-  };
-
-  const closeLoadingModal = () => {
-    setRegistrationSuccess(false);
-    setLoading(false);
-    setRegistrationFailed(false);
-    setShowLoadingModal(false);
+  const onSubmit = async (data: RegisterPetForm) => {
+    console.log(data);
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ flexGrow: 1 }}
-    >
-      {showLoadingModal && (
-        <LoadingModal
-          loading={loading}
-          failed={registrationFailed}
-          success={registrationSuccess}
-          onClose={closeLoadingModal}
-        />
-      )}
-
+    <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.stepBarContainer}>
         {[1, 2].map((s) => (
-          <View
-            key={s}
-            style={[
-              styles.stepBar,
-              { backgroundColor: s <= step ? "#000" : "hsl(0, 0%, 80%)" },
-            ]}
-          ></View>
+          <View key={s} style={[styles.stepBar, { backgroundColor: s <= step ? "#000" : "hsl(0, 0%, 80%)" }]}></View>
         ))}
       </View>
 
@@ -229,12 +53,8 @@ export default function RegisterPetScreen() {
           <View style={{ rowGap: 32 }}>
             <View style={{ rowGap: 16 }}>
               <View style={{ rowGap: 4, marginBottom: 16 }}>
-                <Text style={{ fontSize: 24, fontWeight: "medium" }}>
-                  Pet Information
-                </Text>
-                <Text style={{ color: "hsl(0, 0%, 30%)", fontSize: 16 }}>
-                  Enter the pet's details
-                </Text>
+                <Text style={{ fontSize: 24, fontWeight: "medium" }}>Pet Information</Text>
+                <Text style={{ color: "hsl(0, 0%, 30%)", fontSize: 16 }}>Enter the pet's details</Text>
               </View>
 
               <View style={styles.inputContainer}>
@@ -251,30 +71,31 @@ export default function RegisterPetScreen() {
                       placeholderTextColor="hsl(0 0% 60%)"
                     />
                   )}
-                ></Controller>
+                />
               </View>
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Species</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. dog, cat"
-                  placeholderTextColor="hsl(0 0% 60%)"
-                  onChangeText={(text) => {
-                    setFormData({ ...formData, petSpeciesId: text });
-                  }}
+                <Controller
+                  control={control}
+                  name="petSpeciesId"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      style={styles.input}
+                      placeholder="e.g. dog, cat"
+                      placeholderTextColor="hsl(0 0% 60%)"
+                      value={value}
+                      onChangeText={onChange}
+                    />
+                  )}
                 />
               </View>
             </View>
 
             <View>
               <View style={{ rowGap: 8, marginBottom: 16 }}>
-                <Text style={{ fontSize: 24, fontWeight: "medium" }}>
-                  Place of Resitraion
-                </Text>
-                <Text style={{ color: "hsl(0, 0%, 30%)", fontSize: 16 }}>
-                  Enter your address
-                </Text>
+                <Text style={{ fontSize: 24, fontWeight: "medium" }}>Place of Resitraion</Text>
+                <Text style={{ color: "hsl(0, 0%, 30%)", fontSize: 16 }}>Enter your address</Text>
               </View>
 
               <View style={{ rowGap: 16 }}>
@@ -291,23 +112,25 @@ export default function RegisterPetScreen() {
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>
-                    Municipal Agriculture Office
-                  </Text>
+                  <Text style={styles.inputLabel}>Municipal Agriculture Office</Text>
                   {selectedProvince ? (
-                    <SelectList
-                      data={cities}
-                      setSelected={(key: string) => handleCitySelection(key)}
-                      save="key"
-                      inputStyles={{ textTransform: "capitalize" }}
-                      dropdownTextStyles={{ textTransform: "capitalize" }}
-                      search={false}
+                    <Controller
+                      control={control}
+                      name="placeOfRegistrationId"
+                      render={({ field: { onChange, value } }) => (
+                        <SelectList
+                          data={municipalAgricultureOffices}
+                          setSelected={(key: string) => onChange(key)}
+                          save="key"
+                          inputStyles={{ textTransform: "capitalize" }}
+                          dropdownTextStyles={{ textTransform: "capitalize" }}
+                          search={false}
+                        />
+                      )}
                     />
                   ) : (
                     <View style={styles.disabledSelectList}>
-                      <Text style={{ color: "hsl(0, 0%, 60%)" }}>
-                        Select Option
-                      </Text>
+                      <Text style={{ color: "hsl(0, 0%, 60%)" }}>Select Option</Text>
                     </View>
                   )}
                 </View>
@@ -320,12 +143,8 @@ export default function RegisterPetScreen() {
         {step === 2 && (
           <View style={{ display: "flex", flex: 1 }}>
             <View style={{ rowGap: 4 }}>
-              <Text style={{ fontSize: 24, fontWeight: "medium" }}>
-                Pet Photo
-              </Text>
-              <Text style={{ color: "hsl(0, 0%, 30%)" }}>
-                Upload an image of your pet
-              </Text>
+              <Text style={{ fontSize: 24, fontWeight: "medium" }}>Pet Photo</Text>
+              <Text style={{ color: "hsl(0, 0%, 30%)" }}>Upload an image of your pet</Text>
             </View>
 
             {selectedImage ? (
@@ -352,7 +171,7 @@ export default function RegisterPetScreen() {
                       top: -10,
                     }}
                   >
-                    <Pressable onPress={() => setSelectedImage(null)}>
+                    <Pressable onPress={removeSelectedImage}>
                       <Ionicons name="close" size={24} color="hsl(0 0% 100%)" />
                     </Pressable>
                   </View>
@@ -388,25 +207,17 @@ export default function RegisterPetScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         {step > 1 && (
-          <Button theme="primary" onPress={() => setStep(step - 1)}>
+          <Button theme="primary" onPress={previousStep}>
             Back
           </Button>
         )}
         {step < 2 && (
-          <Button
-            theme="primary"
-            onPress={() => setStep(step + 1)}
-            disabled={step === 1 && !canProceedStep1}
-          >
+          <Button theme="primary" onPress={nextStep} disabled={step === 1 && !canProceedStep1}>
             Next
           </Button>
         )}
         {step === 2 && (
-          <Button
-            theme="primary"
-            onPress={registerPet}
-            disabled={!canSubmit || loading}
-          >
+          <Button theme="primary" onPress={handleSubmit(onSubmit)} disabled={!canSubmit}>
             Rigister
           </Button>
         )}

@@ -21,7 +21,7 @@ export default function IdentifyPetScreen() {
 
   const navigateToResultScreen = (imageUri: string) => {
     router.push({
-      pathname: "/pet-identification/screens/ResultScreen",
+      pathname: "/pet-identification/result",
       params: {
         data: imageUri,
       },
@@ -31,12 +31,8 @@ export default function IdentifyPetScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headContainer}>
-        <Text style={{ fontSize: 20, fontWeight: 600 }}>
-          Choose Identification Method
-        </Text>
-        <Text style={{ fontSize: 14, color: "hsl(0, 0%, 30%)" }}>
-          Select how you want to identify the pet
-        </Text>
+        <Text style={{ fontSize: 20, fontWeight: 600 }}>Choose Identification Method</Text>
+        <Text style={{ fontSize: 14, color: "hsl(0, 0%, 30%)" }}>Select how you want to identify the pet</Text>
       </View>
 
       <View style={styles.buttonContainer}>
