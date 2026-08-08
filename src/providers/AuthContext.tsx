@@ -40,17 +40,13 @@ export default function AuthProvider({ children }: Props) {
   useEffect(() => {
     supabase.auth.getClaims().then(async ({ data }) => {
       setClaims(data?.claims);
-      setUserProfile(
-        data?.claims ? await getUserProfile(data?.claims.sub) : undefined,
-      );
+      setUserProfile(data?.claims ? await getUserProfile(data?.claims.sub) : undefined);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange(() => {
       supabase.auth.getClaims().then(async ({ data }) => {
         setClaims(data?.claims);
-        setUserProfile(
-          data?.claims ? await getUserProfile(data?.claims.sub) : undefined,
-        );
+        setUserProfile(data?.claims ? await getUserProfile(data?.claims.sub) : undefined);
       });
     });
 
@@ -58,16 +54,10 @@ export default function AuthProvider({ children }: Props) {
   }, []);
 
   // Get the user's profile from the database
-  const getUserProfile = async (
-    userId: string | undefined,
-  ): Promise<UserProfile | undefined> => {
+  const getUserProfile = async (userId: string | undefined): Promise<UserProfile | undefined> => {
     if (!userId) return;
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
     if (!error) {
       return data;
@@ -116,7 +106,6 @@ export default function AuthProvider({ children }: Props) {
             first_name: signupForm.firstName,
             last_name: signupForm.lastName,
             birth_date: signupForm.birthDate?.toISOString(),
-            address: signupForm.fullAddress,
           })
           .eq("id", data.user.id);
 
@@ -134,9 +123,7 @@ export default function AuthProvider({ children }: Props) {
   };
 
   return (
-    <AuthContext.Provider
-      value={{ claims, loading, signInWithEmail, userProfile, signOut, signUp }}
-    >
+    <AuthContext.Provider value={{ claims, loading, signInWithEmail, userProfile, signOut, signUp }}>
       {children}
     </AuthContext.Provider>
   );

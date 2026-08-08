@@ -14,7 +14,7 @@ export type RegisterPetForm = {
   statusId: string;
   placeOfRegistrationId: string;
   avatarUrl: string;
-  embedding: number[];
+  embedding: string;
 };
 
 export type PetRegistrationStepProp = {

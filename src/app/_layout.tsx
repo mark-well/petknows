@@ -1,4 +1,5 @@
 import AuthProvider, { useAuth } from "@/providers/AuthContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -17,24 +18,22 @@ export function RootLayoutNav() {
       </Stack.Protected>
 
       {/* Available to everyone */}
-      <Stack.Screen
-        name="pet-identification/live-camera"
-        options={{ title: "Live Camera" }}
-      />
-      <Stack.Screen
-        name="pet-identification/result"
-        options={{ title: "Identificaiton Results" }}
-      />
+      <Stack.Screen name="pet-identification/live-camera" options={{ title: "Live Camera" }} />
+      <Stack.Screen name="pet-identification/result" options={{ title: "Identificaiton Results" }} />
     </Stack>
   );
 }
 
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RootLayoutNav />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <RootLayoutNav />
+        </AuthProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }

@@ -1,4 +1,6 @@
+import ActivityStatus from "@/components/ActivityStatus";
 import Button from "@/components/Button";
+import LoadingModal from "@/components/LoadingModal";
 import { useWatch } from "react-hook-form";
 import { ScrollView, StyleSheet, View } from "react-native";
 import FirstStepPetRegistration from "../components/FirstStepPetRegistration";
@@ -21,6 +23,28 @@ export default function RegisterPetScreen() {
           ></View>
         ))}
       </View>
+
+      {registerPet.isSubmitting && (
+        <LoadingModal title="Registering your pet..." message="Your pet is being registered, please be patient." />
+      )}
+
+      {registerPet.registrationFailed && (
+        <ActivityStatus
+          status="failed"
+          title="Registration failed..."
+          message="There was an error registering your pet."
+          onClose={registerPet.failedFalse}
+        />
+      )}
+
+      {registerPet.registrationSuccess && (
+        <ActivityStatus
+          status="success"
+          title="Registration success"
+          message="Your pet is now registered."
+          onClose={registerPet.successFalse}
+        />
+      )}
 
       {/* Main */}
       <View style={styles.main}>
@@ -45,7 +69,11 @@ export default function RegisterPetScreen() {
           </Button>
         )}
         {registerPet.currentStep === 2 && (
-          <Button theme="primary" onPress={registerPet.handleSubmit(registerPet.submit)} disabled={!canSubmit}>
+          <Button
+            theme="primary"
+            onPress={registerPet.handleSubmit(registerPet.submit)}
+            disabled={!canSubmit || registerPet.isSubmitting}
+          >
             Rigister
           </Button>
         )}
