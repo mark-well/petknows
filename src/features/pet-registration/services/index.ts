@@ -16,8 +16,8 @@ export async function getProvinces() {
 export async function getMunicipalities(provinceId: string) {
   const { data, error } = await supabase
     .from("mao")
-    .select("key:id, value:name, addresses (province_id)")
-    .eq("addresses.province_id", provinceId)
+    .select("key:id, value:name")
+    .eq("province_id", provinceId)
     .overrideTypes<SelectListType[]>();
 
   if (error) return [];
@@ -25,11 +25,7 @@ export async function getMunicipalities(provinceId: string) {
 }
 
 export const getPetStatusIdFromDb = async (statusName: PetStatus) => {
-  const { data, error } = await supabase
-    .from("pet_status")
-    .select("id, name")
-    .eq("name", statusName)
-    .single();
+  const { data, error } = await supabase.from("pet_status").select("id, name").eq("name", statusName).single();
 
   if (error) throw error;
   return data.id;

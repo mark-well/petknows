@@ -7,13 +7,11 @@ export const uploadPetAvatar = async (file: ImagePicker.ImagePickerAsset) => {
 
   const base64 = file.base64;
   const contentType = file.mimeType || "image/jpeg";
-  const fileName = `${Date.now()}_${file.fileName}`;
+  const fileName = `${file.fileName}`;
 
-  const { data, error } = await supabase.storage
-    .from("pet_avatars")
-    .upload(`private/${fileName}`, decode(base64), {
-      contentType: contentType,
-    });
+  const { data, error } = await supabase.storage.from("pet_avatars").upload(`private/${fileName}`, decode(base64), {
+    contentType: contentType,
+  });
 
   if (error) throw error;
   return data;

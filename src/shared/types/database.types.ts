@@ -90,80 +90,54 @@ export type Database = {
         }
         Relationships: []
       }
-      addresses: {
+      mao: {
         Row: {
           barangay_id: string | null
           city_id: string | null
           created_at: string
           id: string
+          name: string | null
           province_id: string | null
+          status: string | null
         }
         Insert: {
           barangay_id?: string | null
           city_id?: string | null
           created_at?: string
           id?: string
+          name?: string | null
           province_id?: string | null
+          status?: string | null
         }
         Update: {
           barangay_id?: string | null
           city_id?: string | null
           created_at?: string
           id?: string
+          name?: string | null
           province_id?: string | null
+          status?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "addresses_barangay_fkey"
+            foreignKeyName: "mao_barangay_id_fkey"
             columns: ["barangay_id"]
             isOneToOne: false
             referencedRelation: "address_barangay"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "addresses_city_fkey"
+            foreignKeyName: "mao_city_id_fkey"
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "address_city"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "addresses_province_fkey"
+            foreignKeyName: "mao_province_id_fkey"
             columns: ["province_id"]
             isOneToOne: false
             referencedRelation: "address_province"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mao: {
-        Row: {
-          address_id: string | null
-          created_at: string
-          id: string
-          name: string | null
-          status: string | null
-        }
-        Insert: {
-          address_id?: string | null
-          created_at?: string
-          id?: string
-          name?: string | null
-          status?: string | null
-        }
-        Update: {
-          address_id?: string | null
-          created_at?: string
-          id?: string
-          name?: string | null
-          status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mao_address_fkey"
-            columns: ["address_id"]
-            isOneToOne: false
-            referencedRelation: "addresses"
             referencedColumns: ["id"]
           },
         ]
@@ -249,33 +223,61 @@ export type Database = {
       }
       profiles: {
         Row: {
-          address: string | null
+          barangay_id: string | null
           birth_date: string | null
+          city_id: string | null
           created_at: string
           email: string | null
           first_name: string | null
           id: string
           last_name: string | null
+          province_id: string | null
         }
         Insert: {
-          address?: string | null
+          barangay_id?: string | null
           birth_date?: string | null
+          city_id?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
+          province_id?: string | null
         }
         Update: {
-          address?: string | null
+          barangay_id?: string | null
           birth_date?: string | null
+          city_id?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
+          province_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_barangay_id_fkey"
+            columns: ["barangay_id"]
+            isOneToOne: false
+            referencedRelation: "address_barangay"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "address_city"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "address_province"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_contact: {
         Row: {

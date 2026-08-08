@@ -1,19 +1,22 @@
+import { useAuth } from "@/providers/AuthContext";
 import { pickImageAsync } from "@/shared/services/imagePicker";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { getMunicipalities, getProvinces } from "../services";
-import { RegisterPetForm, SelectListType } from "../types";
+import { getMunicipalities, getPetStatusIdFromDb, getProvinces } from "../services";
+import { PetStatus, RegisterPetForm, SelectListType } from "../types";
 
 export function useRegisterPet() {
-  const { control, watch, handleSubmit } = useForm<RegisterPetForm>();
-  const [step, setStep] = useState(1);
-  const nextStep = () => setStep((s) => s + 1);
-  const previousStep = () => setStep((s) => s - 1);
+  const { claims } = useAuth();
+  const { control, handleSubmit } = useForm<RegisterPetForm>({ defaultValues: { ownerId: claims?.sub } });
+  const steps = 2; // How many steps there is to registration of pet
+  const [currentStep, setCurrentStep] = useState(1);
+  const nextStep = () => setCurrentStep((s) => s + 1);
+  const previousStep = () => setCurrentStep((s) => s - 1);
   const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [provinces, setProvinces] = useState<SelectListType[]>([]);
-  const [municipalAgricultureOffices, setMunicipalAgricultureOffices] = useState<SelectListType[]>([]);
   const [selectedProvince, setSelectedProvince] = useState<string>();
+  const [municipalAgricultureOffices, setMunicipalAgricultureOffices] = useState<SelectListType[]>([]);
 
   // Fetch provinces
   useEffect(() => {
@@ -44,8 +47,19 @@ export function useRegisterPet() {
   const removeSelectedImage = () => setSelectedImage(() => null);
   const updateSelectedProvice = (provinceId: string) => setSelectedProvince(provinceId);
 
+  // Submit the form
+  const submit = async (data: RegisterPetForm) => {
+    if (!selectedImage) return;
+
+    const petStatus = await getPetStatusIdFromDb(PetStatus.registered);
+    // const avatar = await uploadPetAvatar(selectedImage);
+    // const embedding = await getEmbedding(selectedImage);
+    data.statusId = petStatus;
+  };
+
   return {
-    step,
+    steps,
+    currentStep,
     nextStep,
     previousStep,
     handleImagePicker,
@@ -56,7 +70,7 @@ export function useRegisterPet() {
     municipalAgricultureOffices,
     selectedProvince,
     control,
-    watch,
+    submit,
     handleSubmit,
   };
 }

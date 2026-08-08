@@ -1,26 +1,24 @@
 import { Database } from "@/shared/types/database.types";
+import { useRegisterPet } from "../hooks/useRegisterPet";
 
 export type SelectListType = {
   key: string;
   value: string;
 };
 
-export type PetRegistrationForm = {
-  petName?: string;
-  petSpeciesId?: string;
-  ownerId?: string;
-  statusId?: string;
-  placeOfRegistrationId?: string;
-  avatarUrl?: string;
-  embedding?: number[];
-};
-
 export type RegisterPetForm = {
+  id: string;
   petName: string;
-  petSpeciesId: string;
+  petType: string;
   ownerId: string;
   statusId: string;
   placeOfRegistrationId: string;
+  avatarUrl: string;
+  embedding: number[];
+};
+
+export type PetRegistrationStepProp = {
+  registerPet: ReturnType<typeof useRegisterPet>;
 };
 
 export type PetInsertRecord = Database["public"]["Tables"]["pets"]["Insert"];
