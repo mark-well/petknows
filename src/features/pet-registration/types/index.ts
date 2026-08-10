@@ -10,7 +10,7 @@ export type RegisterPetForm = {
   id: string;
   petName: string;
   petType: string;
-  ownerId: string;
+  user_id: string;
   statusId: string;
   placeOfRegistrationId: string;
   avatarUrl: string;

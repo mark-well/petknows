@@ -168,10 +168,10 @@ export type Database = {
           embedding: string | null
           id: string
           name: string | null
-          owner: string | null
           pet_type: string | null
           place_of_registration: string | null
           status: string | null
+          user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -180,10 +180,10 @@ export type Database = {
           embedding?: string | null
           id?: string
           name?: string | null
-          owner?: string | null
           pet_type?: string | null
           place_of_registration?: string | null
           status?: string | null
+          user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -192,15 +192,15 @@ export type Database = {
           embedding?: string | null
           id?: string
           name?: string | null
-          owner?: string | null
           pet_type?: string | null
           place_of_registration?: string | null
           status?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "pets_owner_fkey"
-            columns: ["owner"]
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

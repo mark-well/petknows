@@ -48,7 +48,7 @@ export default function FirstStepPetRegistration({ registerPet }: PetRegistratio
                 placeholder="e.g. dog, cat"
                 placeholderTextColor="hsl(0 0% 60%)"
                 value={value}
-                onChangeText={onChange}
+                onChangeText={(text: string) => onChange(text.toLowerCase())}
               />
             )}
           />

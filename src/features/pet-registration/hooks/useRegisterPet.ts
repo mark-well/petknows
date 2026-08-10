@@ -12,7 +12,7 @@ import { PetStatus, RegisterPetForm, SelectListType } from "../types";
 
 export function useRegisterPet() {
   const { claims } = useAuth();
-  const { control, handleSubmit, reset } = useForm<RegisterPetForm>({ defaultValues: { ownerId: claims?.sub } });
+  const { control, handleSubmit, reset } = useForm<RegisterPetForm>({ defaultValues: { user_id: claims?.sub } });
   const steps = 2; // How many steps there is to registration of pet
   const [currentStep, setCurrentStep] = useState(1);
   const nextStep = () => setCurrentStep((s) => s + 1);
@@ -65,14 +65,17 @@ export function useRegisterPet() {
       const petStatus = await getPetStatusIdFromDb(PetStatus.registered);
       data.statusId = petStatus;
 
+      // Store the pet image in supabase storage
       const avatar = await uploadPetAvatar(selectedImage);
       data.avatarUrl = avatar.path;
 
+      // Get the pet's image embedding (from custom ML model)
       const embedding = await getEmbedding(selectedImage);
       data.embedding = toVectorLiteral(embedding);
 
+      // Insert a pet record in the database
       await insertPetRecord({
-        owner: data.ownerId,
+        user_id: data.user_id,
         name: data.petName,
         pet_type: data.petType,
         status: data.statusId,

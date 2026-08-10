@@ -1,13 +1,9 @@
+import getUserAddress from "@/shared/services/getUserAddress";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { supabase } from "../../../../lib/supabase";
 import { Database } from "../../../shared/types/database.types";
@@ -17,7 +13,7 @@ type Props = {
   confidence: Float;
 };
 
-type Owner = Database["public"]["Tables"]["profiles"]["Row"];
+type User = Database["public"]["Tables"]["profiles"]["Row"];
 type UserContact = Database["public"]["Tables"]["user_contact"]["Row"];
 
 export default function PetCard({ pet, confidence }: Props) {
@@ -25,14 +21,21 @@ export default function PetCard({ pet, confidence }: Props) {
   const [petPhoto, setPetPhoto] = useState<string>();
   const [petSpecies, setPetSpecies] = useState<string | null>();
   const [petStatus, setPetStatus] = useState<string | null>();
-  const [placeOfRegistration, setPlaceOfRegistration] = useState<
-    string | null
-  >();
-  const dateRegistered = new Date(pet.date_registered).toLocaleDateString(
-    "en-GB",
-  );
-  const [ownerInformations, setOwnerInformations] = useState<Owner | null>();
+  const [placeOfRegistration, setPlaceOfRegistration] = useState<string | null>();
+  const dateRegistered = new Date(pet.date_registered).toLocaleDateString("en-GB");
+  const [ownerInformations, setOwnerInformations] = useState<User | null>();
   const [userContact, setUserContact] = useState<UserContact | null>();
+
+  const { data: userAddress } = useQuery({
+    queryKey: ["userAddress", ownerInformations?.id],
+    queryFn: () => getUserAddress(ownerInformations?.id),
+    enabled: !!ownerInformations?.id,
+  });
+
+  const formatAddress = (address: typeof userAddress) => {
+    if (!address?.address_province && !address?.address_city && !address?.address_barangay) return "N/A";
+    return `${address?.address_province?.name || "n/a"}, ${address?.address_city?.name || "n/a"}, ${address?.address_barangay?.name || "n/a"}`;
+  };
 
   useEffect(() => {
     fetchPetPhoto();
@@ -44,9 +47,7 @@ export default function PetCard({ pet, confidence }: Props) {
 
   const fetchPetPhoto = async () => {
     try {
-      const { data } = supabase.storage
-        .from("pet_avatars")
-        .getPublicUrl(pet.avatar_url);
+      const { data } = supabase.storage.from("pet_avatars").getPublicUrl(pet.avatar_url);
 
       if (data) setPetPhoto(data.publicUrl);
     } catch (e) {
@@ -56,11 +57,7 @@ export default function PetCard({ pet, confidence }: Props) {
 
   const fetchPetStatus = async () => {
     try {
-      const { data, error } = await supabase
-        .from("pet_status")
-        .select("*")
-        .eq("id", pet.status)
-        .single();
+      const { data, error } = await supabase.from("pet_status").select("*").eq("id", pet.status).single();
 
       if (error) throw error;
       setPetStatus(data.name);
@@ -71,11 +68,7 @@ export default function PetCard({ pet, confidence }: Props) {
 
   const fetchPlaceOfRegistration = async () => {
     try {
-      const { data, error } = await supabase
-        .from("mao")
-        .select("*")
-        .eq("id", pet.place_of_registration)
-        .single();
+      const { data, error } = await supabase.from("mao").select("*").eq("id", pet.place_of_registration).single();
 
       if (error) throw error;
       setPlaceOfRegistration(data.name);
@@ -86,11 +79,7 @@ export default function PetCard({ pet, confidence }: Props) {
 
   const fetchOwnerInformation = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", pet.owner)
-        .single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", pet.user_id).single();
 
       if (error) throw error;
       setOwnerInformations(data);
@@ -101,14 +90,9 @@ export default function PetCard({ pet, confidence }: Props) {
 
   const fetchOwnerContactNumber = async () => {
     try {
-      const { data, error } = await supabase
-        .from("user_contact")
-        .select("*")
-        .eq("user_id", pet.owner)
-        .single();
+      const { data, error } = await supabase.from("user_contact").select("*").eq("user_id", pet.user_id).single();
 
       if (error) throw error;
-      console.log(pet.owner);
       setUserContact(data);
     } catch (e) {
       console.log(e);
@@ -118,11 +102,7 @@ export default function PetCard({ pet, confidence }: Props) {
   return (
     <View style={[styles.container, { width: width }]}>
       <View style={{ flex: 1 }}>
-        <Image
-          source={{ uri: petPhoto }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: petPhoto }} style={styles.image} resizeMode="cover" />
       </View>
 
       <View style={{ flex: 1 }}>
@@ -163,9 +143,7 @@ export default function PetCard({ pet, confidence }: Props) {
               }}
             ></View>
           </View>
-          <Text style={{ fontSize: 16, fontWeight: "semibold" }}>
-            {confidence.toFixed(2)}
-          </Text>
+          <Text style={{ fontSize: 16, fontWeight: "semibold" }}>{confidence.toFixed(2)}</Text>
         </View>
       </View>
 
@@ -232,28 +210,22 @@ export default function PetCard({ pet, confidence }: Props) {
             </View>
 
             <View style={styles.attributeContainer}>
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
-              >
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <Lucide name="phone" size={16} color="hsl(0 0% 30%)" />
                 <Text style={styles.attributeTitle}>Contact number</Text>
               </View>
               <Text style={[styles.attribute, { paddingLeft: 24 }]}>
-                {userContact?.number}
+                {userContact?.number ? userContact.number : "No Contacts"}
               </Text>
               <View style={styles.line}></View>
             </View>
 
             <View style={styles.attributeContainer}>
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
-              >
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <Ionicons name="location" size={16} color="hsl(0 0% 30%)" />
                 <Text style={styles.attributeTitle}>Address</Text>
               </View>
-              <Text style={[styles.attribute, { paddingLeft: 24 }]}>
-                {ownerInformations?.address}
-              </Text>
+              <Text style={[styles.attribute, { paddingLeft: 24 }]}>{formatAddress(userAddress)}</Text>
               <View style={styles.line}></View>
             </View>
           </View>
