@@ -11,9 +11,9 @@ PetKnows is a pet registration and identification system developed by **Merto, M
 
 ## Tech Stack
 
-![Static Badge](https://img.shields.io/badge/React%20Navite-frontend-blue?style=plastic&logo=react)
-![Static Badge](https://img.shields.io/badge/Supabase-backend-brightgreen?style=plastic&logo=supabase)
-![Static Badge](https://img.shields.io/badge/Python-ML-blue?style=plastic&logo=python&logoColor=%233776AB)
+![Static Badge](https://img.shields.io/badge/React%20Native-gray?style=plastic&logo=react&link=https%3A%2F%2Freactnative.dev%2F)
+![Static Badge](https://img.shields.io/badge/Supabase-gray?style=plastic&logo=supabase&link=https%3A%2F%2Fwww.python.org%2F)
+![Static Badge](https://img.shields.io/badge/Python-gray?style=plastic&logo=python&link=https%3A%2F%2Fwww.python.org%2F)
 
 ## Contributors
 
