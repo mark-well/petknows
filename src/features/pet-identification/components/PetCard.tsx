@@ -1,7 +1,10 @@
+import Button from "@/components/Button";
+import { NotifyOwner } from "@/features/notification/services";
+import { useAuth } from "@/providers/AuthContext";
 import getUserAddress from "@/shared/services/getUserAddress";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
@@ -17,6 +20,7 @@ type User = Database["public"]["Tables"]["profiles"]["Row"];
 type UserContact = Database["public"]["Tables"]["user_contact"]["Row"];
 
 export default function PetCard({ pet, confidence }: Props) {
+  const { userProfile } = useAuth();
   const { width } = useWindowDimensions();
   const [petPhoto, setPetPhoto] = useState<string>();
   const [petSpecies, setPetSpecies] = useState<string | null>();
@@ -99,6 +103,24 @@ export default function PetCard({ pet, confidence }: Props) {
     }
   };
 
+  const notifyOwnerMutation = useMutation({
+    mutationFn: ({
+      recipientId,
+      senderId,
+      pet,
+    }: {
+      recipientId: string | null;
+      senderId: string | null;
+      pet: any | null;
+    }) => NotifyOwner(recipientId, senderId, pet),
+    onSuccess: () => alert("Owner notified!"),
+    onError: () => alert("There was an error notifying the owner"),
+  });
+
+  const handleNotifyOwner = (recipientId: string | null, senderId: string | null, pet: any | null) => {
+    notifyOwnerMutation.mutate({ recipientId: recipientId, senderId: senderId, pet: pet });
+  };
+
   return (
     <View style={[styles.container, { width: width }]}>
       <View style={{ flex: 1 }}>
@@ -112,8 +134,7 @@ export default function PetCard({ pet, confidence }: Props) {
               fontSize: 16,
               fontWeight: "semibold",
               color: "hsl(0 0% 30%)",
-            }}
-          >
+            }}>
             Confidence
           </Text>
         </View>
@@ -123,16 +144,14 @@ export default function PetCard({ pet, confidence }: Props) {
             flexDirection: "row",
             alignItems: "center",
             gap: 16,
-          }}
-        >
+          }}>
           <View
             style={{
               flex: 2,
               height: 8,
               borderRadius: 8,
               backgroundColor: "hsl(0 0% 60%)",
-            }}
-          >
+            }}>
             <View
               style={{
                 flex: 2,
@@ -140,8 +159,7 @@ export default function PetCard({ pet, confidence }: Props) {
                 height: "auto",
                 borderRadius: 8,
                 backgroundColor: "hsl(0 0% 20%)",
-              }}
-            ></View>
+              }}></View>
           </View>
           <Text style={{ fontSize: 16, fontWeight: "semibold" }}>{confidence.toFixed(2)}</Text>
         </View>
@@ -153,8 +171,7 @@ export default function PetCard({ pet, confidence }: Props) {
           backgroundColor: "hsl(0 0% 90%)",
           borderRadius: 16,
           rowGap: 32,
-        }}
-      >
+        }}>
         <View style={styles.infoContainer}>
           <View style={styles.titleContainer}>
             <Lucide name="paw-print" size={24} color="#000" />
@@ -228,6 +245,10 @@ export default function PetCard({ pet, confidence }: Props) {
               <Text style={[styles.attribute, { paddingLeft: 24 }]}>{formatAddress(userAddress)}</Text>
               <View style={styles.line}></View>
             </View>
+
+            <Button onPress={() => handleNotifyOwner(ownerInformations?.id ?? null, userProfile?.id ?? null, pet)}>
+              Notify Owner
+            </Button>
           </View>
         </View>
       </View>

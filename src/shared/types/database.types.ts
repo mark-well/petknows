@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -142,6 +142,54 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string | null
+          recipient_id: string | null
+          sender_id: string | null
+          title: string | null
+          type: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          title?: string | null
+          type?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          title?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pet_status: {
         Row: {
           created_at: string
@@ -163,6 +211,8 @@ export type Database = {
       pets: {
         Row: {
           avatar_url: string | null
+          breed: string | null
+          color: string | null
           created_at: string
           date_registered: string | null
           embedding: string | null
@@ -170,11 +220,14 @@ export type Database = {
           name: string | null
           pet_type: string | null
           place_of_registration: string | null
+          public_id: string
           status: string | null
           user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
+          breed?: string | null
+          color?: string | null
           created_at?: string
           date_registered?: string | null
           embedding?: string | null
@@ -182,11 +235,14 @@ export type Database = {
           name?: string | null
           pet_type?: string | null
           place_of_registration?: string | null
+          public_id?: string
           status?: string | null
           user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
+          breed?: string | null
+          color?: string | null
           created_at?: string
           date_registered?: string | null
           embedding?: string | null
@@ -194,17 +250,11 @@ export type Database = {
           name?: string | null
           pet_type?: string | null
           place_of_registration?: string | null
+          public_id?: string
           status?: string | null
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "pets_owner_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "pets_place_of_registration_fkey"
             columns: ["place_of_registration"]
@@ -219,10 +269,19 @@ export type Database = {
             referencedRelation: "pet_status"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
         Row: {
+          admin_at: string | null
+          avatar_url: string | null
           barangay_id: string | null
           birth_date: string | null
           city_id: string | null
@@ -232,8 +291,13 @@ export type Database = {
           id: string
           last_name: string | null
           province_id: string | null
+          public_id: string
+          role: Database["public"]["Enums"]["user_roles"]
+          sex: Database["public"]["Enums"]["sex"]
         }
         Insert: {
+          admin_at?: string | null
+          avatar_url?: string | null
           barangay_id?: string | null
           birth_date?: string | null
           city_id?: string | null
@@ -243,8 +307,13 @@ export type Database = {
           id?: string
           last_name?: string | null
           province_id?: string | null
+          public_id?: string
+          role?: Database["public"]["Enums"]["user_roles"]
+          sex?: Database["public"]["Enums"]["sex"]
         }
         Update: {
+          admin_at?: string | null
+          avatar_url?: string | null
           barangay_id?: string | null
           birth_date?: string | null
           city_id?: string | null
@@ -254,8 +323,18 @@ export type Database = {
           id?: string
           last_name?: string | null
           province_id?: string | null
+          public_id?: string
+          role?: Database["public"]["Enums"]["user_roles"]
+          sex?: Database["public"]["Enums"]["sex"]
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_admin_at_fkey"
+            columns: ["admin_at"]
+            isOneToOne: false
+            referencedRelation: "mao"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_barangay_id_fkey"
             columns: ["barangay_id"]
@@ -313,6 +392,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_age: { Args: { date_of_birth: string }; Returns: number }
+      custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       get_species_counts:
         | {
             Args: never
@@ -330,7 +411,8 @@ export type Database = {
           }
     }
     Enums: {
-      [_ in never]: never
+      sex: "Male" | "Female" | "Other"
+      user_roles: "user" | "admin" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -457,6 +539,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      sex: ["Male", "Female", "Other"],
+      user_roles: ["user", "admin", "super_admin"],
+    },
   },
 } as const

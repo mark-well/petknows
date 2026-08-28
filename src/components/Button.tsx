@@ -8,13 +8,7 @@ type Props = PropsWithChildren<{
   style?: object;
 }>;
 
-export default function Button({
-  children,
-  theme,
-  onPress,
-  disabled = false,
-  style,
-}: Props) {
+export default function Button({ children, theme, onPress, disabled = false, style }: Props) {
   if (theme == "primary") {
     return (
       <View
@@ -24,8 +18,7 @@ export default function Button({
           {
             backgroundColor: disabled ? "hsl(0, 0%, 70%)" : "#000",
           },
-        ]}
-      >
+        ]}>
         <Pressable style={styles.button} onPress={onPress} disabled={disabled}>
           <Text style={[styles.text, { color: "#fff" }]}>{children}</Text>
         </Pressable>
@@ -42,8 +35,7 @@ export default function Button({
           {
             backgroundColor: disabled ? "hsl(0, 0%, 40%)" : "#000",
           },
-        ]}
-      >
+        ]}>
         <Pressable style={styles.button} onPress={onPress} disabled={disabled}>
           <Text style={[styles.text, { color: "#fff" }]}>{children}</Text>
         </Pressable>
@@ -58,7 +50,6 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 12,
     paddingHorizontal: 8,
-    flex: 1,
   },
 
   button: {
