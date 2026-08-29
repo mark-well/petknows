@@ -1,11 +1,19 @@
+import { getUserNotificationsCount } from "@/features/notification/services";
 import { useAuth } from "@/providers/AuthContext";
-import { Entypo } from "@react-native-vector-icons/entypo";
-import { Ionicons } from "@react-native-vector-icons/ionicons";
+import Entypo from "@expo/vector-icons/Entypo";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQuery } from "@tanstack/react-query";
 import { Tabs } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function TabLayout() {
-  const { signOut } = useAuth();
+  const { userProfile } = useAuth();
+
+  const { data: notificationCount } = useQuery({
+    queryKey: ["unreadNotification"],
+    queryFn: () => getUserNotificationsCount(userProfile?.id ?? null),
+  });
 
   return (
     <Tabs
@@ -24,16 +32,13 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           marginTop: 4,
         },
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
           title: "PetKnows",
           tabBarLabel: "Dashboard",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name="home-outline" size={32} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
           headerLeftContainerStyle: {
             paddingLeft: 16,
             marginRight: 8,
@@ -47,8 +52,15 @@ export default function TabLayout() {
             </View>
           ),
           headerRight: () => (
-            <Pressable onPress={() => signOut()}>
-              <Ionicons name="exit-outline" size={32} color="#000" />
+            <Pressable>
+              <Ionicons name="notifications" size={24} color="#000" />
+              {(notificationCount ?? 0) > 0 && (
+                <View style={styles.notifBadgeContainer}>
+                  <Text style={styles.notifBadgeNumber}>
+                    {(notificationCount ?? 0) > 99 ? "99+" : notificationCount}
+                  </Text>
+                </View>
+              )}
             </Pressable>
           ),
         }}
@@ -58,9 +70,7 @@ export default function TabLayout() {
         options={{
           title: "Register Pet",
           tabBarLabel: "Register",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name="document-text-outline" size={32} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Ionicons name="document-text-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -68,9 +78,15 @@ export default function TabLayout() {
         options={{
           title: "Identify Pet",
           tabBarLabel: "Identify",
-          tabBarIcon: ({ color, focused }) => (
-            <Entypo name="magnifying-glass" size={32} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Entypo name="magnifying-glass" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "App Settings",
+          tabBarLabel: "Settings",
+          tabBarIcon: ({ color }) => <FontAwesome name="cog" size={24} color={color} />,
         }}
       />
     </Tabs>
@@ -84,5 +100,24 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "#000",
     borderRadius: 50,
+  },
+
+  notifBadgeContainer: {
+    position: "absolute",
+    top: -5,
+    right: -8,
+    backgroundColor: "red",
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  notifBadgeNumber: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "bold",
   },
 });

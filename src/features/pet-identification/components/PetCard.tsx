@@ -1,5 +1,5 @@
 import Button from "@/components/Button";
-import { NotifyOwner } from "@/features/notification/services";
+import { notifyOwner } from "@/features/notification/services";
 import { useAuth } from "@/providers/AuthContext";
 import getUserAddress from "@/shared/services/getUserAddress";
 import Ionicons from "@react-native-vector-icons/ionicons";
@@ -112,7 +112,7 @@ export default function PetCard({ pet, confidence }: Props) {
       recipientId: string | null;
       senderId: string | null;
       pet: any | null;
-    }) => NotifyOwner(recipientId, senderId, pet),
+    }) => notifyOwner(recipientId, senderId, pet),
     onSuccess: () => alert("Owner notified!"),
     onError: () => alert("There was an error notifying the owner"),
   });

@@ -2,53 +2,51 @@ import IconButton from "@/components/IconButton";
 import { useAuth } from "@/providers/AuthContext";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Lucide } from "@react-native-vector-icons/lucide";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { supabase } from "../../../../lib/supabase";
-
-type SpeciesCount = {
-  name: string;
-  count: number;
-};
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { getPetCount } from "../services";
 
 export default function DashboardScreen() {
-  // Mock data
-  // const species = [
-  //   { name: "Dog", count: 5 },
-  //   { name: "Cat", count: 5 },
-  //   { name: "Bird", count: 8 },
-  // ];
-  const [species, setSpecies] = useState<SpeciesCount[]>([]);
   const [totalPetsRegistered, setTotalPetRegistered] = useState<number>(0);
   const { userProfile } = useAuth();
+  const [pageRefreshing, setPageRefreshing] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
-  //Fetch species counts
-  useEffect(() => {
-    getPetCount();
-  }, [userProfile]);
+  const { data: species = [] } = useQuery({
+    queryKey: ["petCount", userProfile?.id],
+    queryFn: () => getPetCount(userProfile?.id ?? null),
+    enabled: !!userProfile?.id,
+  });
 
   //Count total pets
   useEffect(() => {
     setTotalPetRegistered(species.reduce((sum, pet) => sum + pet.count, 0));
   }, [species]);
 
-  const getPetCount = async () => {
-    if (!userProfile) return;
+  //Refresh the page
+  const onRefresh = async () => {
+    setPageRefreshing(true);
+
     try {
-      const { data, error } = await supabase.rpc("get_species_counts", {
-        uid: userProfile.id,
+      await queryClient.invalidateQueries({
+        queryKey: ["unreadNotification"],
       });
 
-      if (error) throw error;
-      setSpecies(data);
-    } catch (e) {
-      console.error(e);
+      await queryClient.invalidateQueries({
+        queryKey: ["petCount"],
+      });
+    } finally {
+      setPageRefreshing(false);
     }
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ rowGap: 32 }}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ rowGap: 32 }}
+      refreshControl={<RefreshControl refreshing={pageRefreshing} onRefresh={onRefresh} />}>
       {/* Hero Section */}
       <View style={styles.heroContainer}>
         <Text style={styles.heroTitle}>Welcome to PetKnows</Text>
@@ -68,9 +66,7 @@ export default function DashboardScreen() {
         {/* Total pets card */}
         <View style={[styles.cards, styles.totalPetContainer]}>
           <View>
-            <Text style={[{ color: "hsl(0, 0%, 95%)" }]}>
-              Total Pets Registered
-            </Text>
+            <Text style={[{ color: "hsl(0, 0%, 95%)" }]}>Total Pets Registered</Text>
             <Text
               style={[
                 {
@@ -78,8 +74,7 @@ export default function DashboardScreen() {
                   fontSize: 36,
                   fontWeight: "semibold",
                 },
-              ]}
-            >
+              ]}>
               {totalPetsRegistered}
             </Text>
           </View>
@@ -91,8 +86,7 @@ export default function DashboardScreen() {
                   padding: 12,
                   borderRadius: "50%",
                 },
-              ]}
-            >
+              ]}>
               <Lucide name="paw-print" size={32} color="#fff" />
             </View>
           </View>
@@ -100,9 +94,7 @@ export default function DashboardScreen() {
 
         {/* Species breakdown card */}
         <View style={[styles.cards, styles.speciesBreakdownContainer]}>
-          <View
-            style={{ flexDirection: "row", columnGap: 8, marginBottom: 12 }}
-          >
+          <View style={{ flexDirection: "row", columnGap: 8, marginBottom: 12 }}>
             <Ionicons name="trending-up" size={24} color="#000" />
             <Text style={{ fontWeight: "medium" }}>Species Breakdown</Text>
           </View>
@@ -120,8 +112,7 @@ export default function DashboardScreen() {
                           {
                             width: `${(pet.count / totalPetsRegistered) * 100}%`,
                           },
-                        ]}
-                      ></View>
+                        ]}></View>
                     </View>
                     <Text style={styles.speciesCount}>{pet.count}</Text>
                   </View>
@@ -136,9 +127,7 @@ export default function DashboardScreen() {
 
       {/* Quick Actions card*/}
       <View style={styles.quickActionsContainer}>
-        <Text style={{ fontSize: 20, fontWeight: "medium" }}>
-          Quick Actions
-        </Text>
+        <Text style={{ fontSize: 20, fontWeight: "medium" }}>Quick Actions</Text>
 
         <IconButton
           icon={<Lucide name="paw-print" size={24} color="#fff" />}
