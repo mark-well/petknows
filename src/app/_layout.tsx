@@ -11,6 +11,7 @@ export function RootLayoutNav() {
       {/* Authenticated users only */}
       <Stack.Protected guard={!!claims}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="notification" options={{ headerShown: true, title: "Notifications" }} />
       </Stack.Protected>
 
       <Stack.Protected guard={!claims}>

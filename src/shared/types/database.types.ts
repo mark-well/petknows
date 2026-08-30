@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -90,6 +90,51 @@ export type Database = {
         }
         Relationships: []
       }
+      identifications: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number | null
+          location_accuracy: number | null
+          longitude: number | null
+          pet: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location_accuracy?: number | null
+          longitude?: number | null
+          pet?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location_accuracy?: number | null
+          longitude?: number | null
+          pet?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identifications_pet_fkey"
+            columns: ["pet"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "identifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mao: {
         Row: {
           barangay_id: string | null
@@ -146,6 +191,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          identification_record: string | null
           is_read: boolean
           message: string | null
           recipient_id: string | null
@@ -156,6 +202,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          identification_record?: string | null
           is_read?: boolean
           message?: string | null
           recipient_id?: string | null
@@ -166,6 +213,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          identification_record?: string | null
           is_read?: boolean
           message?: string | null
           recipient_id?: string | null
@@ -174,6 +222,13 @@ export type Database = {
           type?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_identification_record_fkey"
+            columns: ["identification_record"]
+            isOneToOne: false
+            referencedRelation: "identifications"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_recipient_id_fkey"
             columns: ["recipient_id"]

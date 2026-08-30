@@ -4,7 +4,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
-import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function TabLayout() {
@@ -38,7 +38,7 @@ export default function TabLayout() {
         options={{
           title: "PetKnows",
           tabBarLabel: "Dashboard",
-          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={30} color={color} />,
           headerLeftContainerStyle: {
             paddingLeft: 16,
             marginRight: 8,
@@ -52,7 +52,7 @@ export default function TabLayout() {
             </View>
           ),
           headerRight: () => (
-            <Pressable>
+            <Pressable onPress={() => router.push("/notification")}>
               <Ionicons name="notifications" size={24} color="#000" />
               {(notificationCount ?? 0) > 0 && (
                 <View style={styles.notifBadgeContainer}>
@@ -70,7 +70,7 @@ export default function TabLayout() {
         options={{
           title: "Register Pet",
           tabBarLabel: "Register",
-          tabBarIcon: ({ color }) => <Ionicons name="document-text-outline" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="document-text-outline" size={30} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -78,7 +78,7 @@ export default function TabLayout() {
         options={{
           title: "Identify Pet",
           tabBarLabel: "Identify",
-          tabBarIcon: ({ color }) => <Entypo name="magnifying-glass" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Entypo name="magnifying-glass" size={30} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -86,7 +86,7 @@ export default function TabLayout() {
         options={{
           title: "App Settings",
           tabBarLabel: "Settings",
-          tabBarIcon: ({ color }) => <FontAwesome name="cog" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome name="cog" size={30} color={color} />,
         }}
       />
     </Tabs>

@@ -5,21 +5,24 @@ import getUserAddress from "@/shared/services/getUserAddress";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import * as Location from "expo-location";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { supabase } from "../../../../lib/supabase";
 import { Database } from "../../../shared/types/database.types";
+import insertIdentificationRecord from "../services";
 
 type Props = {
   pet: any;
   confidence: Float;
+  location: Location.LocationObject | null;
 };
 
 type User = Database["public"]["Tables"]["profiles"]["Row"];
 type UserContact = Database["public"]["Tables"]["user_contact"]["Row"];
 
-export default function PetCard({ pet, confidence }: Props) {
+export default function PetCard({ pet, confidence, location }: Props) {
   const { userProfile } = useAuth();
   const { width } = useWindowDimensions();
   const [petPhoto, setPetPhoto] = useState<string>();
@@ -103,22 +106,41 @@ export default function PetCard({ pet, confidence }: Props) {
     }
   };
 
+  const newIdentificationMutation = useMutation({
+    mutationFn: ({
+      petId,
+      userId,
+      location,
+    }: {
+      petId: string;
+      userId: string | null;
+      location: Location.LocationObject | null;
+    }) => insertIdentificationRecord(petId, userId, location),
+  });
+
   const notifyOwnerMutation = useMutation({
     mutationFn: ({
       recipientId,
       senderId,
       pet,
+      identificationId,
     }: {
       recipientId: string | null;
       senderId: string | null;
       pet: any | null;
-    }) => notifyOwner(recipientId, senderId, pet),
+      identificationId: string;
+    }) => notifyOwner(recipientId, senderId, pet, identificationId),
     onSuccess: () => alert("Owner notified!"),
     onError: () => alert("There was an error notifying the owner"),
   });
 
-  const handleNotifyOwner = (recipientId: string | null, senderId: string | null, pet: any | null) => {
-    notifyOwnerMutation.mutate({ recipientId: recipientId, senderId: senderId, pet: pet });
+  const handleNotifyOwner = async (recipientId: string | null, senderId: string | null, pet: any | null) => {
+    const { id } = await newIdentificationMutation.mutateAsync({
+      petId: pet.id,
+      userId: senderId ?? null,
+      location: location ?? null,
+    });
+    notifyOwnerMutation.mutate({ recipientId: recipientId, senderId: senderId, pet: pet, identificationId: id });
   };
 
   return (
@@ -170,7 +192,7 @@ export default function PetCard({ pet, confidence }: Props) {
           padding: 16,
           backgroundColor: "hsl(0 0% 90%)",
           borderRadius: 16,
-          rowGap: 32,
+          rowGap: 16,
         }}>
         <View style={styles.infoContainer}>
           <View style={styles.titleContainer}>
@@ -178,7 +200,7 @@ export default function PetCard({ pet, confidence }: Props) {
             <Text style={styles.title}>Pet Information</Text>
           </View>
 
-          <View style={{ rowGap: 8 }}>
+          <View>
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Name</Text>
               <Text style={styles.attribute}>{pet.name}</Text>
@@ -217,7 +239,7 @@ export default function PetCard({ pet, confidence }: Props) {
             <Text style={styles.title}>Owner Information</Text>
           </View>
 
-          <View style={{ rowGap: 8 }}>
+          <View>
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Name</Text>
               <Text style={styles.attribute}>
@@ -245,12 +267,12 @@ export default function PetCard({ pet, confidence }: Props) {
               <Text style={[styles.attribute, { paddingLeft: 24 }]}>{formatAddress(userAddress)}</Text>
               <View style={styles.line}></View>
             </View>
-
-            <Button onPress={() => handleNotifyOwner(ownerInformations?.id ?? null, userProfile?.id ?? null, pet)}>
-              Notify Owner
-            </Button>
           </View>
         </View>
+
+        <Button onPress={() => handleNotifyOwner(ownerInformations?.id ?? null, userProfile?.id ?? null, pet)}>
+          Notify Owner
+        </Button>
       </View>
     </View>
   );
@@ -271,7 +293,7 @@ const styles = StyleSheet.create({
   },
 
   infoContainer: {
-    rowGap: 18,
+    rowGap: 12,
   },
 
   line: {

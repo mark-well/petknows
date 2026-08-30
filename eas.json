@@ -11,11 +11,7 @@
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://riooazyiuocxhheqcaaw.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_1F5AQWhFvOFS1z2U5nEc6w_gSVmnCUI",
-        "EXPO_PUBLIC_MODEL_BACKEND_URL": "https://petknows-backend.onrender.com"
-      }
+      "environment": "preview"
     },
     "production": {
       "autoIncrement": true
