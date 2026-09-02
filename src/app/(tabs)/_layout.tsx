@@ -74,6 +74,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="pet-management"
+        options={{
+          title: "Manage Pets",
+          tabBarLabel: "Pets",
+          tabBarIcon: ({ color }) => <Ionicons name="paw-outline" size={30} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="identify"
         options={{
           title: "Identify Pet",
