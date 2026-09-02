@@ -119,7 +119,7 @@ export default function ResultScreen() {
         ) : (
           <ScrollView horizontal style={{ flex: 1 }}>
             {combinedMatches.map((pet) => (
-              <PetCard pet={pet} location={location} />
+              <PetCard key={pet.id} pet={pet} location={location} />
             ))}
           </ScrollView>
         )}

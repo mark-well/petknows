@@ -207,7 +207,9 @@ export default function PetCard({ pet, location }: Props) {
                 <Lucide name="phone" size={16} color="hsl(0 0% 30%)" />
                 <Text style={styles.attributeTitle}>Contact number</Text>
               </View>
-              <Text style={[styles.attribute, { paddingLeft: 24 }]}>{pet.owner?.contacts[0].number}</Text>
+              <Text style={[styles.attribute, { paddingLeft: 24 }]}>
+                {pet.owner?.contacts[0] ? pet.owner?.contacts[0].number : "No Contact"}
+              </Text>
               <View style={styles.line}></View>
             </View>
 
