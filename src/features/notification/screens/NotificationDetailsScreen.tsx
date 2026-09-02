@@ -56,14 +56,14 @@ export default function NotificationDetailsScreen({ id }: Props) {
             <Text style={{ fontSize: 18, fontWeight: 600 }}>{data?.title}</Text>
             <View style={{ flexDirection: "row", columnGap: 8 }}>
               <Text style={{ color: "hsl(0 0% 32%)", textTransform: "capitalize" }}>{`${data?.type} By:`}</Text>
-              <Text style={{ color: "hsl(0 0% 32%)" }}>{`${data?.sender?.last_name}`}</Text>
+              <Text style={{ color: "hsl(0 0% 32%)" }}>{`${data?.sender?.first_name} ${data?.sender?.last_name}`}</Text>
             </View>
             <View style={{ flexDirection: "row", columnGap: 8 }}>
               <Text style={{ color: "hsl(0 0% 32%)", textTransform: "capitalize" }}>Contact #:</Text>
               <Text
                 style={{
                   color: "hsl(0 0% 32%)",
-                }}>{`${data?.sender?.first_name} ${data?.sender?.user_contact[0].number}`}</Text>
+                }}>{`${data?.sender?.user_contact[0].number}`}</Text>
             </View>
             <Text style={styles.message}>{data?.message}</Text>
           </View>

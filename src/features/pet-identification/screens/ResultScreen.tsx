@@ -1,55 +1,86 @@
 import Ionicons from "@react-native-vector-icons/ionicons";
+import { useQuery } from "@tanstack/react-query";
 import { File } from "expo-file-system";
 import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PetCard from "../components/PetCard";
-
-type topMatchesProps = {
-  pet: any;
-  similarity: string;
-};
+import getIdentifiedPets from "../services/getIdentifiedPets";
+import { CombinedPetMatch, IdentifyResponse, PetMatch } from "../types";
 
 export default function ResultScreen() {
   const imageUri = useLocalSearchParams<{ data: string }>().data;
   const snnApiUrl = process.env.EXPO_PUBLIC_MODEL_BACKEND_URL;
   const [loading, setLoading] = useState<boolean>(false);
-  const [topMatches, setTopMatches] = useState<[]>();
-  const [long, setLong] = useState<number>(0);
-  const [lat, setLat] = useState<number>(0);
+  const [topPetMatches, setTopPetMatches] = useState<PetMatch[]>([]);
+  const [petIds, setPetIds] = useState<string[] | null>(null);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [address, setAddress] = useState<Location.LocationGeocodedAddress[] | null>(null);
 
   useEffect(() => {
-    const identifyPet = async (imageUri: string) => {
-      try {
-        setLoading(true);
-        const image = new File(imageUri);
-        const formData = new FormData();
-        formData.append("file", image);
-
-        const response = await fetch(`${snnApiUrl}/identify`, {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await response.json();
-        if (!data.found) throw data.error;
-
-        // If there is pets
-        setTopMatches(data["top_matches"]);
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     identifyPet(imageUri);
     handleGetLocation();
   }, []);
+
+  const { data: petMatches } = useQuery({
+    queryKey: ["topPetMatches", petIds],
+    queryFn: () => getIdentifiedPets(petIds ?? null),
+    enabled: !!petIds?.length,
+  });
+
+  const combinedMatches = useMemo<CombinedPetMatch[]>(() => {
+    if (!petMatches || !topPetMatches.length) return [];
+
+    const matchById = new Map(topPetMatches.map((match) => [match.id, match]));
+
+    return petMatches
+      .map((pet) => {
+        const match = matchById.get(pet.id);
+
+        if (!match) return null;
+
+        return {
+          ...pet,
+          distance: match.distance,
+          confidence: match.confidence,
+        };
+      })
+      .filter((pet): pet is CombinedPetMatch => pet !== null)
+      .sort((a, b) => a.distance - b.distance);
+  }, [petMatches, topPetMatches]);
+
+  const identifyPet = async (imageUri: string) => {
+    try {
+      setLoading(true);
+      const image = new File(imageUri);
+      const formData = new FormData();
+      formData.append("file", image);
+
+      const response = await fetch(`${snnApiUrl}/identify`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data: IdentifyResponse = await response.json();
+      if (!data.found) throw new Error("No pet found");
+
+      // If there is pets
+      const topMatches = data.top_matches ?? [];
+      setTopPetMatches(topMatches);
+      setPetIds(topMatches?.map((pet) => pet.id));
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getIds = (petMatches: PetMatch[] | null) => {
+    if (!petMatches) return;
+    return petMatches.map((pet) => pet.id);
+  };
 
   const handleGetLocation = async () => {
     try {
@@ -87,8 +118,8 @@ export default function ResultScreen() {
           </View>
         ) : (
           <ScrollView horizontal style={{ flex: 1 }}>
-            {topMatches?.map((item: topMatchesProps) => (
-              <PetCard pet={item.pet} confidence={parseFloat(item.similarity)} key={item.pet.id} location={location} />
+            {combinedMatches.map((pet) => (
+              <PetCard pet={pet} location={location} />
             ))}
           </ScrollView>
         )}

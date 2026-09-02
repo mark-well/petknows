@@ -8,28 +8,27 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { supabase } from "../../../../lib/supabase";
 import { Database } from "../../../shared/types/database.types";
 import insertIdentificationRecord from "../services";
+import { CombinedPetMatch } from "../types";
 
 type Props = {
-  pet: any;
-  confidence: Float;
+  pet: CombinedPetMatch;
   location: Location.LocationObject | null;
 };
 
 type User = Database["public"]["Tables"]["profiles"]["Row"];
 type UserContact = Database["public"]["Tables"]["user_contact"]["Row"];
 
-export default function PetCard({ pet, confidence, location }: Props) {
+export default function PetCard({ pet, location }: Props) {
   const { userProfile } = useAuth();
   const { width } = useWindowDimensions();
   const [petPhoto, setPetPhoto] = useState<string>();
   const [petSpecies, setPetSpecies] = useState<string | null>();
   const [petStatus, setPetStatus] = useState<string | null>();
   const [placeOfRegistration, setPlaceOfRegistration] = useState<string | null>();
-  const dateRegistered = new Date(pet.date_registered).toLocaleDateString("en-GB");
+  const dateRegistered = new Date(pet.created_at).toLocaleDateString("en-GB");
   const [ownerInformations, setOwnerInformations] = useState<User | null>();
   const [userContact, setUserContact] = useState<UserContact | null>();
 
@@ -39,68 +38,25 @@ export default function PetCard({ pet, confidence, location }: Props) {
     enabled: !!ownerInformations?.id,
   });
 
-  const formatAddress = (address: typeof userAddress) => {
-    if (!address?.address_province && !address?.address_city && !address?.address_barangay) return "N/A";
-    return `${address?.address_province?.name || "n/a"}, ${address?.address_city?.name || "n/a"}, ${address?.address_barangay?.name || "n/a"}`;
+  const formatAddress = (
+    province: string | null | undefined,
+    city: string | null | undefined,
+    barangay: string | null | undefined,
+  ) => {
+    if (!province && !city && !barangay) return "N/A";
+    return `${province || "n/a"}, ${city || "n/a"}, ${city || "n/a"}`;
   };
 
   useEffect(() => {
     fetchPetPhoto();
-    fetchPetStatus();
-    fetchPlaceOfRegistration();
-    fetchOwnerInformation();
-    fetchOwnerContactNumber();
   }, []);
 
   const fetchPetPhoto = async () => {
     try {
+      if (!pet.avatar_url) throw new Error("No url");
       const { data } = supabase.storage.from("pet_avatars").getPublicUrl(pet.avatar_url);
 
       if (data) setPetPhoto(data.publicUrl);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const fetchPetStatus = async () => {
-    try {
-      const { data, error } = await supabase.from("pet_status").select("*").eq("id", pet.status).single();
-
-      if (error) throw error;
-      setPetStatus(data.name);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const fetchPlaceOfRegistration = async () => {
-    try {
-      const { data, error } = await supabase.from("mao").select("*").eq("id", pet.place_of_registration).single();
-
-      if (error) throw error;
-      setPlaceOfRegistration(data.name);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const fetchOwnerInformation = async () => {
-    try {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", pet.user_id).single();
-
-      if (error) throw error;
-      setOwnerInformations(data);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const fetchOwnerContactNumber = async () => {
-    try {
-      const { data, error } = await supabase.from("user_contact").select("*").eq("user_id", pet.user_id).single();
-
-      if (error) throw error;
-      setUserContact(data);
     } catch (e) {
       console.log(e);
     }
@@ -177,13 +133,13 @@ export default function PetCard({ pet, confidence, location }: Props) {
             <View
               style={{
                 flex: 2,
-                width: `${confidence * 100}%`,
+                width: `${pet.confidence * 100}%`,
                 height: "auto",
                 borderRadius: 8,
                 backgroundColor: "hsl(0 0% 20%)",
               }}></View>
           </View>
-          <Text style={{ fontSize: 16, fontWeight: "semibold" }}>{confidence.toFixed(2)}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "semibold" }}>{pet.confidence.toFixed(2)}</Text>
         </View>
       </View>
 
@@ -215,19 +171,19 @@ export default function PetCard({ pet, confidence, location }: Props) {
 
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Status</Text>
-              <Text style={styles.attribute}>{petStatus}</Text>
+              <Text style={styles.attribute}>{pet.status?.name}</Text>
               <View style={styles.line}></View>
             </View>
 
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Registered at</Text>
-              <Text style={styles.attribute}>{placeOfRegistration}</Text>
+              <Text style={styles.attribute}>{pet.registered_at?.name}</Text>
               <View style={styles.line}></View>
             </View>
 
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Date registered</Text>
-              <Text style={styles.attribute}>{dateRegistered}</Text>
+              <Text style={styles.attribute}>{new Date(pet.created_at).toLocaleDateString("en-GB")}</Text>
               <View style={styles.line}></View>
             </View>
           </View>
@@ -242,9 +198,7 @@ export default function PetCard({ pet, confidence, location }: Props) {
           <View>
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Name</Text>
-              <Text style={styles.attribute}>
-                {ownerInformations?.first_name} {ownerInformations?.last_name}
-              </Text>
+              <Text style={styles.attribute}>{`${pet.owner?.first_name} ${pet.owner?.last_name}`}</Text>
               <View style={styles.line}></View>
             </View>
 
@@ -253,9 +207,7 @@ export default function PetCard({ pet, confidence, location }: Props) {
                 <Lucide name="phone" size={16} color="hsl(0 0% 30%)" />
                 <Text style={styles.attributeTitle}>Contact number</Text>
               </View>
-              <Text style={[styles.attribute, { paddingLeft: 24 }]}>
-                {userContact?.number ? userContact.number : "No Contacts"}
-              </Text>
+              <Text style={[styles.attribute, { paddingLeft: 24 }]}>{pet.owner?.contacts[0].number}</Text>
               <View style={styles.line}></View>
             </View>
 
@@ -264,13 +216,15 @@ export default function PetCard({ pet, confidence, location }: Props) {
                 <Ionicons name="location" size={16} color="hsl(0 0% 30%)" />
                 <Text style={styles.attributeTitle}>Address</Text>
               </View>
-              <Text style={[styles.attribute, { paddingLeft: 24 }]}>{formatAddress(userAddress)}</Text>
+              <Text style={[styles.attribute, { paddingLeft: 24 }]}>
+                {formatAddress(pet.owner?.province?.name, pet.owner?.city?.name, pet.owner?.barangay?.name)}
+              </Text>
               <View style={styles.line}></View>
             </View>
           </View>
         </View>
 
-        <Button onPress={() => handleNotifyOwner(ownerInformations?.id ?? null, userProfile?.id ?? null, pet)}>
+        <Button onPress={() => handleNotifyOwner(pet.owner?.id ?? null, userProfile?.id ?? null, pet)}>
           Notify Owner
         </Button>
       </View>
