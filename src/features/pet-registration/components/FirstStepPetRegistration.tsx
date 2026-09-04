@@ -53,11 +53,62 @@ export default function FirstStepPetRegistration({ registerPet }: PetRegistratio
             )}
           />
         </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Breed</Text>
+          <Controller
+            control={control}
+            name="breed"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter breed"
+                placeholderTextColor="hsl(0 0% 60%)"
+                value={value}
+                onChangeText={(text: string) => onChange(text.toLowerCase())}
+              />
+            )}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Color</Text>
+          <Controller
+            control={control}
+            name="color"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter the dominant color"
+                placeholderTextColor="hsl(0 0% 60%)"
+                value={value}
+                onChangeText={(text: string) => onChange(text.toLowerCase())}
+              />
+            )}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Description</Text>
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter additional info (optional)"
+                placeholderTextColor="hsl(0 0% 60%)"
+                value={value}
+                onChangeText={(text: string) => onChange(text.toLowerCase())}
+              />
+            )}
+          />
+        </View>
       </View>
 
       <View>
         <View style={{ rowGap: 8, marginBottom: 16 }}>
-          <Text style={{ fontSize: 24, fontWeight: "medium" }}>Place of Resitraion</Text>
+          <Text style={{ fontSize: 24, fontWeight: "medium" }}>Place of Registration</Text>
           <Text style={{ color: "hsl(0, 0%, 30%)", fontSize: 16 }}>Enter your address</Text>
         </View>
 

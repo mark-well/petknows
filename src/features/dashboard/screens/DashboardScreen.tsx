@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    marginBottom: 16,
     flexDirection: "column",
   },
 

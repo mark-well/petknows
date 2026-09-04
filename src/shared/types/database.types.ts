@@ -308,6 +308,7 @@ export type Database = {
           color: string | null
           created_at: string
           date_registered: string | null
+          description: string | null
           embedding: string | null
           id: string
           name: string | null
@@ -323,6 +324,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           date_registered?: string | null
+          description?: string | null
           embedding?: string | null
           id?: string
           name?: string | null
@@ -338,6 +340,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           date_registered?: string | null
+          description?: string | null
           embedding?: string | null
           id?: string
           name?: string | null

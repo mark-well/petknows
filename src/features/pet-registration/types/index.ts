@@ -12,6 +12,9 @@ export type RegisterPetForm = {
   id: string;
   petName: string;
   petType: string;
+  breed: string;
+  color: string;
+  description: string;
   user_id: string;
   statusId: string;
   placeOfRegistrationId: string;
