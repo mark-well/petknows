@@ -1,5 +1,7 @@
+import { EmbeddingResponse } from "@/shared/types";
 import { Database } from "@/shared/types/database.types";
 import { useRegisterPet } from "../hooks/useRegisterPet";
+import { uploadPetImage } from "../services/uploadPetImage";
 
 export type SelectListType = {
   key: string;
@@ -22,8 +24,14 @@ export type PetRegistrationStepProp = {
 };
 
 export type PetInsertRecord = Database["public"]["Tables"]["pets"]["Insert"];
+export type PetImageInsertRecord = Database["public"]["Tables"]["pet_images"]["Insert"];
 
 export enum PetStatus {
   registered = "registered",
   missing = "missing",
 }
+
+export type UploadedImages = {
+  uploadedImage: Awaited<ReturnType<typeof uploadPetImage>>;
+  embedding: EmbeddingResponse;
+};

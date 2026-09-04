@@ -8,3 +8,8 @@ export type SignupFormType = {
   password: string;
   confirmPassword: string;
 };
+
+export type EmbeddingResponse = {
+  embedding: number[];
+  model_version: string;
+};

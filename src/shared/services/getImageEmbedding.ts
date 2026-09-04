@@ -1,5 +1,6 @@
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
+import { EmbeddingResponse } from "../types";
 
 export async function getEmbedding(image: ImagePicker.ImagePickerAsset) {
   const snnApiUrl = process.env.EXPO_PUBLIC_MODEL_BACKEND_URL;
@@ -16,6 +17,6 @@ export async function getEmbedding(image: ImagePicker.ImagePickerAsset) {
     throw new Error(`Failed to get embedding (${response.status})`);
   }
 
-  const data = await response.json();
-  return data.embedding;
+  const data: EmbeddingResponse = await response.json();
+  return data;
 }

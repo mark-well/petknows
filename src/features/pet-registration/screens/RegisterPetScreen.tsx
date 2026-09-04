@@ -11,7 +11,7 @@ export default function RegisterPetScreen() {
   const registerPet = useRegisterPet();
   const watchvalues = useWatch({ control: registerPet.control });
   const canProceedStep1 = Boolean(watchvalues.petName && watchvalues.petType && watchvalues.placeOfRegistrationId);
-  const canSubmit = registerPet.selectedImage;
+  const canSubmit = registerPet.selectedImage.length >= registerPet.imageLimit;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
@@ -19,8 +19,10 @@ export default function RegisterPetScreen() {
         {[...new Array(registerPet.steps).keys()].map((s) => (
           <View
             key={s}
-            style={[styles.stepBar, { backgroundColor: s + 1 <= registerPet.currentStep ? "#000" : "hsl(0, 0%, 80%)" }]}
-          ></View>
+            style={[
+              styles.stepBar,
+              { backgroundColor: s + 1 <= registerPet.currentStep ? "#000" : "hsl(0, 0%, 80%)" },
+            ]}></View>
         ))}
       </View>
 
@@ -55,25 +57,25 @@ export default function RegisterPetScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         {registerPet.currentStep > 1 && (
-          <Button theme="primary" onPress={registerPet.previousStep}>
+          <Button theme="primary" style={{ flex: 1 }} onPress={registerPet.previousStep}>
             Back
           </Button>
         )}
         {registerPet.currentStep < 2 && (
           <Button
             theme="primary"
+            style={{ flex: 1 }}
             onPress={registerPet.nextStep}
-            disabled={registerPet.currentStep === 1 && !canProceedStep1}
-          >
+            disabled={registerPet.currentStep === 1 && !canProceedStep1}>
             Next
           </Button>
         )}
         {registerPet.currentStep === 2 && (
           <Button
             theme="primary"
+            style={{ flex: 1 }}
             onPress={registerPet.handleSubmit(registerPet.submit)}
-            disabled={!canSubmit || registerPet.isSubmitting}
-          >
+            disabled={!canSubmit || registerPet.isSubmitting}>
             Rigister
           </Button>
         )}
@@ -110,7 +112,6 @@ const styles = StyleSheet.create({
   },
 
   footer: {
-    width: "100%",
     borderTopWidth: 1.5,
     borderColor: "hsl(0, 0%, 85%)",
     justifyContent: "center",
@@ -118,6 +119,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     columnGap: 8,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 8,
   },
 });
