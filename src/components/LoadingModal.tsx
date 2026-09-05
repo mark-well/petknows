@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Modal, StyleSheet, Text, View } from "react-native";
 
 type Props = {
   onClose?: () => void;
@@ -9,12 +9,14 @@ type Props = {
 export default function LoadingModal({ onClose, title, message }: Props) {
   return (
     <>
-      <View style={styles.backdrop}></View>
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="hsl(15 100% 54%)" />
-        <Text style={styles.title}>{title || "Loading..."}</Text>
-        <Text style={styles.message}>{message || "Loading..."}</Text>
-      </View>
+      <Modal visible={true} transparent animationType="fade" statusBarTranslucent>
+        <View style={styles.backdrop} />
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color="hsl(15 100% 54%)" />
+          <Text style={styles.title}>{title || "Loading..."}</Text>
+          <Text style={styles.message}>{message || "Loading..."}</Text>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 20,
-    fontWeight: "semibold",
+    fontWeight: "600",
     textAlign: "center",
   },
 

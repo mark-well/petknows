@@ -16,7 +16,7 @@ export type RegisterPetForm = {
   color: string;
   description: string;
   user_id: string;
-  statusId: string;
+  status: Database["public"]["Enums"]["pet_status"];
   placeOfRegistrationId: string;
   avatarUrl: string;
   embedding: string;

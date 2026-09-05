@@ -1,5 +1,6 @@
 import { useAuth } from "@/providers/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useFocusEffect } from "expo-router";
 import { useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import NotificationItem from "../components/NotificationItem";
@@ -10,10 +11,18 @@ export default function NotificationScreen() {
   const queryClient = useQueryClient();
   const [pageRefreshing, setPageRefreshing] = useState<boolean>(false);
 
-  const { data: notifications = [], isPending: notifLoading } = useQuery({
+  const {
+    data: notifications = [],
+    isPending: notifLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => getUserNotifications(userProfile?.id ?? null),
     enabled: !!userProfile?.id,
+  });
+
+  useFocusEffect(() => {
+    refetch();
   });
 
   const onRefresh = async () => {

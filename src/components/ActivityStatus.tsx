@@ -1,5 +1,5 @@
 import Ionicons from "@react-native-vector-icons/ionicons";
-import { StyleSheet, Text, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 
 type Props = {
@@ -13,33 +13,37 @@ export default function ActivityStatus({ onClose, status, title, message }: Prop
   if (status == "success") {
     return (
       <>
-        <View style={styles.backdrop}></View>
-        <View style={styles.container}>
-          <View style={styles.iconSuccess}>
-            <Ionicons name="checkmark-sharp" size={48} color="hsl(111 100% 31.9%)" />
+        <Modal visible={true} transparent animationType="fade" statusBarTranslucent>
+          <View style={styles.backdrop}></View>
+          <View style={styles.container}>
+            <View style={styles.iconSuccess}>
+              <Ionicons name="checkmark-sharp" size={48} color="hsl(111 100% 31.9%)" />
+            </View>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.message}>{message}</Text>
+            <Button onPress={onClose} style={styles.button}>
+              Continue
+            </Button>
           </View>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
-          <Button onPress={onClose} style={styles.button}>
-            Continue
-          </Button>
-        </View>
+        </Modal>
       </>
     );
   } else {
     return (
       <>
-        <View style={styles.backdrop}></View>
-        <View style={styles.container}>
-          <View style={styles.iconFailed}>
-            <Ionicons name="close" size={48} color="hsl(0 100% 31.9%)" />
+        <Modal visible={true} transparent animationType="fade" statusBarTranslucent>
+          <View style={styles.backdrop}></View>
+          <View style={styles.container}>
+            <View style={styles.iconFailed}>
+              <Ionicons name="close" size={48} color="hsl(0 100% 31.9%)" />
+            </View>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.message}>{message}</Text>
+            <Button onPress={onClose} style={styles.button}>
+              Continue
+            </Button>
           </View>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
-          <Button onPress={onClose} style={styles.button}>
-            Continue
-          </Button>
-        </View>
+        </Modal>
       </>
     );
   }
@@ -79,7 +83,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 20,
-    fontWeight: "semibold",
+    fontWeight: "600",
     textAlign: "center",
   },
 

@@ -14,9 +14,9 @@ export default function DashboardScreen() {
   const [pageRefreshing, setPageRefreshing] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
-  const { data: species = [] } = useQuery({
+  const { data: species = [], refetch } = useQuery({
     queryKey: ["petCount", userProfile?.id],
-    queryFn: () => getPetCount(userProfile?.id ?? null),
+    queryFn: () => getPetCount(userProfile?.id!),
     enabled: !!userProfile?.id,
   });
 

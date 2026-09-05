@@ -283,24 +283,6 @@ export type Database = {
           },
         ]
       }
-      pet_status: {
-        Row: {
-          created_at: string
-          id: string
-          name: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string | null
-        }
-        Relationships: []
-      }
       pets: {
         Row: {
           avatar_url: string | null
@@ -315,7 +297,7 @@ export type Database = {
           pet_type: string | null
           place_of_registration: string | null
           public_id: string
-          status: string | null
+          status: Database["public"]["Enums"]["pet_status"] | null
           user_id: string | null
         }
         Insert: {
@@ -331,7 +313,7 @@ export type Database = {
           pet_type?: string | null
           place_of_registration?: string | null
           public_id?: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["pet_status"] | null
           user_id?: string | null
         }
         Update: {
@@ -347,7 +329,7 @@ export type Database = {
           pet_type?: string | null
           place_of_registration?: string | null
           public_id?: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["pet_status"] | null
           user_id?: string | null
         }
         Relationships: [
@@ -356,13 +338,6 @@ export type Database = {
             columns: ["place_of_registration"]
             isOneToOne: false
             referencedRelation: "mao"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pets_status_fkey"
-            columns: ["status"]
-            isOneToOne: false
-            referencedRelation: "pet_status"
             referencedColumns: ["id"]
           },
           {
@@ -520,6 +495,7 @@ export type Database = {
       }
     }
     Enums: {
+      pet_status: "registered" | "missing"
       sex: "Male" | "Female" | "Other"
       user_roles: "user" | "admin" | "super_admin"
     }
@@ -649,6 +625,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      pet_status: ["registered", "missing"],
       sex: ["Male", "Female", "Other"],
       user_roles: ["user", "admin", "super_admin"],
     },

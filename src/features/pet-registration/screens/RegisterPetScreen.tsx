@@ -14,18 +14,8 @@ export default function RegisterPetScreen() {
   const canSubmit = registerPet.selectedImage.length >= registerPet.imageLimit;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.stepBarContainer}>
-        {[...new Array(registerPet.steps).keys()].map((s) => (
-          <View
-            key={s}
-            style={[
-              styles.stepBar,
-              { backgroundColor: s + 1 <= registerPet.currentStep ? "#000" : "hsl(0, 0%, 80%)" },
-            ]}></View>
-        ))}
-      </View>
-
+    <>
+      {/* Activity Indicators */}
       {registerPet.isSubmitting && (
         <LoadingModal title="Registering your pet..." message="Your pet is being registered, please be patient." />
       )}
@@ -48,39 +38,52 @@ export default function RegisterPetScreen() {
         />
       )}
 
-      {/* Main */}
-      <View style={styles.main}>
-        {registerPet.currentStep === 1 && <FirstStepPetRegistration registerPet={registerPet} />}
-        {registerPet.currentStep === 2 && <SecondStepPetRegistration registerPet={registerPet} />}
-      </View>
+      <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.stepBarContainer}>
+          {[...new Array(registerPet.steps).keys()].map((s) => (
+            <View
+              key={s}
+              style={[
+                styles.stepBar,
+                { backgroundColor: s + 1 <= registerPet.currentStep ? "#000" : "hsl(0, 0%, 80%)" },
+              ]}></View>
+          ))}
+        </View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        {registerPet.currentStep > 1 && (
-          <Button theme="primary" style={{ flex: 1 }} onPress={registerPet.previousStep}>
-            Back
-          </Button>
-        )}
-        {registerPet.currentStep < 2 && (
-          <Button
-            theme="primary"
-            style={{ flex: 1 }}
-            onPress={registerPet.nextStep}
-            disabled={registerPet.currentStep === 1 && !canProceedStep1}>
-            Next
-          </Button>
-        )}
-        {registerPet.currentStep === 2 && (
-          <Button
-            theme="primary"
-            style={{ flex: 1 }}
-            onPress={registerPet.handleSubmit(registerPet.submit)}
-            disabled={!canSubmit || registerPet.isSubmitting}>
-            Rigister
-          </Button>
-        )}
-      </View>
-    </ScrollView>
+        {/* Main */}
+        <View style={styles.main}>
+          {registerPet.currentStep === 1 && <FirstStepPetRegistration registerPet={registerPet} />}
+          {registerPet.currentStep === 2 && <SecondStepPetRegistration registerPet={registerPet} />}
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          {registerPet.currentStep > 1 && (
+            <Button theme="primary" style={{ flex: 1 }} onPress={registerPet.previousStep}>
+              Back
+            </Button>
+          )}
+          {registerPet.currentStep < 2 && (
+            <Button
+              theme="primary"
+              style={{ flex: 1 }}
+              onPress={registerPet.nextStep}
+              disabled={registerPet.currentStep === 1 && !canProceedStep1}>
+              Next
+            </Button>
+          )}
+          {registerPet.currentStep === 2 && (
+            <Button
+              theme="primary"
+              style={{ flex: 1 }}
+              onPress={registerPet.handleSubmit(registerPet.submit)}
+              disabled={!canSubmit || registerPet.isSubmitting}>
+              Rigister
+            </Button>
+          )}
+        </View>
+      </ScrollView>
+    </>
   );
 }
 

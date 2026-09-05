@@ -5,12 +5,12 @@ import * as Crypto from "expo-crypto";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { getMunicipalities, getPetStatusIdFromDb, getProvinces, toVectorLiteral } from "../services";
+import { getMunicipalities, getProvinces, toVectorLiteral } from "../services";
 import deletePetImage from "../services/deletePetImage";
 import { insertPetImage } from "../services/insertPetImage";
 import { insertPetRecord } from "../services/insertPetRecord";
 import { uploadPetImage } from "../services/uploadPetImage";
-import { PetImageInsertRecord, PetStatus, RegisterPetForm, SelectListType, UploadedImages } from "../types";
+import { PetImageInsertRecord, RegisterPetForm, SelectListType, UploadedImages } from "../types";
 
 export function useRegisterPet() {
   const { claims } = useAuth();
@@ -123,12 +123,9 @@ export function useRegisterPet() {
   const submit = async (data: RegisterPetForm) => {
     if (!selectedImage) return;
     setIsSubmitting(true);
-
     let uploadedImagesForCleanUp: UploadedImages[] = [];
-    try {
-      const petStatus = await getPetStatusIdFromDb(PetStatus.registered);
-      data.statusId = petStatus;
 
+    try {
       const { folderId, uploads } = await uploadPetImages();
 
       if (uploads.length === 0) throw new Error("No images were uploaded.");
@@ -143,7 +140,7 @@ export function useRegisterPet() {
         breed: data.breed,
         color: data.color,
         description: data.description,
-        status: data.statusId,
+        status: data.status,
         avatar_url: data.avatarUrl,
         embedding: null,
         place_of_registration: data.placeOfRegistrationId,
