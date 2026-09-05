@@ -1,10 +1,10 @@
 export default {
   expo: {
-    name: "petknows",
+    name: "Petknows",
     slug: "petknows",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/logo.png",
     scheme: "petknows",
     userInterfaceStyle: "automatic",
     ios: {
@@ -29,7 +29,7 @@ export default {
       [
         "expo-splash-screen",
         {
-          backgroundColor: "#208AEF",
+          backgroundColor: "#FF7738",
           image: "./assets/images/splash-icon.png",
           imageWidth: 76,
         },
