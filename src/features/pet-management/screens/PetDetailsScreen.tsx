@@ -1,6 +1,7 @@
 import ActivityStatus from "@/components/ActivityStatus";
 import LoadingModal from "@/components/LoadingModal";
 import CustomButton from "@/shared/components/CustomButton";
+import { Host, Picker } from "@expo/ui";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,6 +25,7 @@ import getPetImages from "../api/getPetImages";
 import getSinglePet from "../api/getSinglePet";
 import PetStatusBadge from "../components/PetStatusBadge";
 import useUpdatePet from "../hooks/useUpdatePet";
+import { PetStatues } from "../types";
 
 type Props = {
   petId: string;
@@ -35,6 +37,7 @@ export default function PetDetailsScreen({ petId }: Props) {
   const [editDetails, setEditDetails] = useState<boolean>(false);
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [updateFailed, setUpdateFailed] = useState<boolean>(false);
+  const petStatuses: PetStatues[] = ["registered", "missing"];
 
   // Get the pet
   const { data: pet, isPending: petLoading } = useQuery({
@@ -52,6 +55,7 @@ export default function PetDetailsScreen({ petId }: Props) {
         breed: pet.breed,
         color: pet.color,
         description: pet.description,
+        status: pet.status,
       });
     }
   }, [pet, reset]);
@@ -167,7 +171,11 @@ export default function PetDetailsScreen({ petId }: Props) {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     multiline={true}
-                    style={[style.petDetailsItem, { fontSize: 16, width: "100%", minHeight: 100 }]}
+                    style={[
+                      style.petDetailsItem,
+                      { fontSize: 16, width: "100%", minHeight: 100, borderRadius: 6, borderColor: "#FF783A" },
+                      editDetails && { borderWidth: 0.5 },
+                    ]}
                     value={value ?? ""}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -216,7 +224,7 @@ export default function PetDetailsScreen({ petId }: Props) {
                     name="name"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        style={style.petDetailsItem}
+                        style={[style.petDetailsItem, editDetails && style.petDetailsEditable]}
                         value={value ?? ""}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -237,7 +245,11 @@ export default function PetDetailsScreen({ petId }: Props) {
                     name="pet_type"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        style={[style.petDetailsItem, { textTransform: "capitalize" }]}
+                        style={[
+                          style.petDetailsItem,
+                          { textTransform: "capitalize" },
+                          editDetails && style.petDetailsEditable,
+                        ]}
                         value={value ?? ""}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -258,7 +270,7 @@ export default function PetDetailsScreen({ petId }: Props) {
                     name="breed"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        style={style.petDetailsItem}
+                        style={[style.petDetailsItem, editDetails && style.petDetailsEditable]}
                         value={value ?? ""}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -279,7 +291,7 @@ export default function PetDetailsScreen({ petId }: Props) {
                     name="color"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        style={style.petDetailsItem}
+                        style={[style.petDetailsItem, editDetails && style.petDetailsEditable]}
                         value={value ?? ""}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -295,7 +307,27 @@ export default function PetDetailsScreen({ petId }: Props) {
                   <Text style={style.petDetailsItemKey}>Status:</Text>
                 </View>
                 <View style={[style.petDetailsColumnValue, { paddingVertical: 6 }]}>
-                  <PetStatusBadge status={pet.status ?? "registered"} />
+                  {!editDetails ? (
+                    <PetStatusBadge status={pet.status ?? "registered"} />
+                  ) : (
+                    <Controller
+                      control={control}
+                      name="status"
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <Host matchContents={{ vertical: true }} style={{ width: "100%" }} seedColor="#FF783A">
+                          <Picker selectedValue={value} onValueChange={onChange} appearance="wheel">
+                            {petStatuses.map((status) => (
+                              <Picker.Item
+                                key={status}
+                                label={status.charAt(0).toUpperCase() + status.slice(1)}
+                                value={status}
+                              />
+                            ))}
+                          </Picker>
+                        </Host>
+                      )}
+                    />
+                  )}
                 </View>
               </View>
 
@@ -411,6 +443,11 @@ const style = StyleSheet.create({
     fontSize: 16,
     width: "100%",
     color: "#000",
+  },
+
+  petDetailsEditable: {
+    borderBottomWidth: 1,
+    borderColor: "#FF783A",
   },
 
   petDetailsItemKey: {

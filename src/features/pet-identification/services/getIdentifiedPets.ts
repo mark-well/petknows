@@ -11,7 +11,7 @@ export default async function getIdentifiedPets(petIds: string[] | null) {
       pet_type,
       breed,
       color,
-      status:pet_status(name),
+      status,
       created_at,
       avatar_url,
       registered_at:place_of_registration(name),

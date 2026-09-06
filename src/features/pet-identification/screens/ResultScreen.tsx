@@ -32,7 +32,6 @@ export default function ResultScreen() {
 
   const combinedMatches = useMemo<CombinedPetMatch[]>(() => {
     if (!petMatches || !topPetMatches.length) return [];
-
     const matchById = new Map(topPetMatches.map((match) => [match.id, match]));
 
     return petMatches
@@ -75,11 +74,6 @@ export default function ResultScreen() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getIds = (petMatches: PetMatch[] | null) => {
-    if (!petMatches) return;
-    return petMatches.map((pet) => pet.id);
   };
 
   const handleGetLocation = async () => {
