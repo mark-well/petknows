@@ -51,7 +51,7 @@ export default function NotificationDetailsScreen({ id }: Props) {
     <>
       <Stack.Screen options={{ title: "Notifications" }} />
       <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
-        <ScrollView style={[styles.main]} contentContainerStyle={{ gap: 32 }}>
+        <ScrollView style={[styles.main]} contentContainerStyle={{ gap: 32, paddingBottom: 64 }}>
           <View>
             <Text style={{ fontSize: 18, fontWeight: 600 }}>{data?.title}</Text>
             <View style={{ flexDirection: "row", columnGap: 8 }}>
@@ -85,7 +85,7 @@ export default function NotificationDetailsScreen({ id }: Props) {
             </View>
 
             {identificationRecord?.latitude != null && identificationRecord.longitude != null && (
-              <View style={{ height: 300, borderRadius: 6, borderWidth: 1, borderColor: "hsl(0 0% 64%)" }}>
+              <View style={{ height: 400, borderRadius: 6, borderWidth: 1, borderColor: "#FF783A" }}>
                 <MapView
                   provider={PROVIDER_GOOGLE}
                   style={{ flex: 1 }}
