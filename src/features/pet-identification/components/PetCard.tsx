@@ -1,10 +1,10 @@
 import Button from "@/components/Button";
 import { notifyOwner } from "@/features/notification/services";
 import { useAuth } from "@/providers/AuthContext";
-import getUserAddress from "@/shared/services/getUserAddress";
+import formatAddress from "@/utils/formatAddress";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, useWindowDimensions, View } from "react-native";
@@ -19,7 +19,6 @@ type Props = {
 };
 
 type User = Database["public"]["Tables"]["profiles"]["Row"];
-type UserContact = Database["public"]["Tables"]["user_contact"]["Row"];
 
 export default function PetCard({ pet, location }: Props) {
   const { userProfile } = useAuth();
@@ -30,22 +29,6 @@ export default function PetCard({ pet, location }: Props) {
   const [placeOfRegistration, setPlaceOfRegistration] = useState<string | null>();
   const dateRegistered = new Date(pet.created_at).toLocaleDateString("en-GB");
   const [ownerInformations, setOwnerInformations] = useState<User | null>();
-  const [userContact, setUserContact] = useState<UserContact | null>();
-
-  const { data: userAddress } = useQuery({
-    queryKey: ["userAddress", ownerInformations?.id],
-    queryFn: () => getUserAddress(ownerInformations?.id),
-    enabled: !!ownerInformations?.id,
-  });
-
-  const formatAddress = (
-    province: string | null | undefined,
-    city: string | null | undefined,
-    barangay: string | null | undefined,
-  ) => {
-    if (!province && !city && !barangay) return "N/A";
-    return `${province || "n/a"}, ${city || "n/a"}, ${city || "n/a"}`;
-  };
 
   useEffect(() => {
     fetchPetPhoto();
@@ -207,9 +190,7 @@ export default function PetCard({ pet, location }: Props) {
                 <Lucide name="phone" size={16} color="hsl(0 0% 30%)" />
                 <Text style={styles.attributeTitle}>Contact number</Text>
               </View>
-              <Text style={[styles.attribute, { paddingLeft: 24 }]}>
-                {pet.owner?.contacts[0] ? pet.owner?.contacts[0].number : "No Contact"}
-              </Text>
+              <Text style={[styles.attribute, { paddingLeft: 24 }]}>{pet.owner?.contact_number}</Text>
               <View style={styles.line}></View>
             </View>
 

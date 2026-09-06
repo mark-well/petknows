@@ -22,9 +22,11 @@ export default function CustomButton({ children, onPress, style, disabled = fals
 const styles = StyleSheet.create({
   mainContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingVertical: 16,
     backgroundColor: "hsl(0 88% 30%)",
-    borderRadius: 6,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   disabled: {

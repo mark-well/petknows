@@ -1,5 +1,7 @@
+import getUserProfile from "@/features/user/services/getUserProfile";
 import { SignupFormType } from "@/shared/types";
 import { JwtPayload } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
@@ -35,36 +37,27 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export default function AuthProvider({ children }: Props) {
   const [claims, setClaims] = useState<JwtPayload | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
-  const [userProfile, setUserProfile] = useState<UserProfile>();
+
+  // Get the user's profile from the database
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile", claims?.sub],
+    queryFn: () => getUserProfile(claims?.sub!),
+    enabled: Boolean(claims?.sub),
+  });
 
   useEffect(() => {
     supabase.auth.getClaims().then(async ({ data }) => {
       setClaims(data?.claims);
-      setUserProfile(data?.claims ? await getUserProfile(data?.claims.sub) : undefined);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange(() => {
       supabase.auth.getClaims().then(async ({ data }) => {
         setClaims(data?.claims);
-        setUserProfile(data?.claims ? await getUserProfile(data?.claims.sub) : undefined);
       });
     });
 
     return () => listener.subscription.unsubscribe();
   }, []);
-
-  // Get the user's profile from the database
-  const getUserProfile = async (userId: string | undefined): Promise<UserProfile | undefined> => {
-    if (!userId) return;
-
-    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
-
-    if (!error) {
-      return data;
-    } else {
-      return undefined;
-    }
-  };
 
   // Sign in using email and password
   const signInWithEmail = async (email: string, password: string) => {

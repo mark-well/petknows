@@ -1,4 +1,4 @@
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../../lib/supabase";
 
 export default async function getUserAddress(userId: string | undefined) {
   if (!userId) throw new Error("No user id");
@@ -6,9 +6,9 @@ export default async function getUserAddress(userId: string | undefined) {
     .from("profiles")
     .select(
       `
-        address_province:province_id(name),
-        address_city:city_id(name),
-        address_barangay:barangay_id(name)
+        province:province_id(name),
+        city:city_id(name),
+        barangay:barangay_id(name)
         `,
     )
     .eq("id", userId)

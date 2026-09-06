@@ -356,6 +356,7 @@ export type Database = {
           barangay_id: string | null
           birth_date: string | null
           city_id: string | null
+          contact_number: string | null
           created_at: string
           email: string | null
           first_name: string | null
@@ -372,6 +373,7 @@ export type Database = {
           barangay_id?: string | null
           birth_date?: string | null
           city_id?: string | null
+          contact_number?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -388,6 +390,7 @@ export type Database = {
           barangay_id?: string | null
           birth_date?: string | null
           city_id?: string | null
+          contact_number?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -425,35 +428,6 @@ export type Database = {
             columns: ["province_id"]
             isOneToOne: false
             referencedRelation: "address_province"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_contact: {
-        Row: {
-          created_at: string
-          id: string
-          number: number | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          number?: number | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          number?: number | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_contact_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

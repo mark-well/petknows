@@ -191,7 +191,7 @@ export default function PetDetailsScreen({ petId }: Props) {
                 <Text style={{ fontSize: 20, fontWeight: 500, color: "hsl(0 0% 42%)" }}>Details</Text>
                 <View style={{ flexDirection: "row", gap: 16, justifyContent: "center", alignItems: "center" }}>
                   {editDetails && (
-                    <CustomButton onPress={handleUpdate} disabled={updatePending}>
+                    <CustomButton onPress={handleUpdate} style={{ paddingVertical: 4 }} disabled={updatePending}>
                       Update
                     </CustomButton>
                   )}

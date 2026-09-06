@@ -22,7 +22,7 @@ export default async function getIdentifiedPets(petIds: string[] | null) {
         last_name,
         sex,
         email,
-        contacts:user_contact(number),
+        contact_number,
         province:address_province(name),
         city:address_city(name),
         barangay:address_barangay(name)

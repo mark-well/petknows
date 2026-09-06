@@ -1,11 +1,11 @@
 import { PropsWithChildren } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 
 type Props = PropsWithChildren<{
   theme?: "primary";
   onPress?: () => void;
   disabled?: boolean;
-  style?: object;
+  style?: StyleProp<ViewStyle>;
 }>;
 
 export default function Button({ children, theme, onPress, disabled = false, style }: Props) {
@@ -16,7 +16,7 @@ export default function Button({ children, theme, onPress, disabled = false, sty
           styles.buttonContainer,
           style,
           {
-            backgroundColor: disabled ? "hsl(0, 0%, 70%)" : "#000",
+            backgroundColor: disabled ? "hsl(0, 0%, 70%)" : "hsl(19, 100%, 61%)",
           },
         ]}>
         <Pressable style={styles.button} onPress={onPress} disabled={disabled}>
@@ -33,7 +33,7 @@ export default function Button({ children, theme, onPress, disabled = false, sty
           styles.buttonContainer,
           style,
           {
-            backgroundColor: disabled ? "hsl(0, 0%, 40%)" : "#000",
+            backgroundColor: disabled ? "hsl(0, 0%, 40%)" : "hsl(0 88% 30%)",
           },
         ]}>
         <Pressable style={styles.button} onPress={onPress} disabled={disabled}>
