@@ -20,7 +20,7 @@ export function RootLayoutNav() {
 
       {/* Available to everyone */}
       <Stack.Screen name="pet-identification/live-camera" options={{ title: "Live Camera" }} />
-      <Stack.Screen name="pet-identification/result" options={{ title: "Identificaiton Results" }} />
+      <Stack.Screen name="pet-identification/result" options={{ title: "Identification Results" }} />
     </Stack>
   );
 }
