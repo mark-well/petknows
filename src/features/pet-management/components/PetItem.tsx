@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 16,
     height: 92,
+    boxShadow: "rgba(0, 0, 0, 0.10) 0px 4px 8px",
   },
 
   pressedEffect: {

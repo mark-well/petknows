@@ -160,9 +160,9 @@ export default function PetDetailsScreen({ petId }: Props) {
             {/* === PET DESCRIPTION === */}
             <View>
               <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 16 }}>
-                <View style={{ height: 1, width: "100%", backgroundColor: "hsl(0 0% 64%)" }} />
-                <Text style={{ fontSize: 18, color: "hsl(0 0% 32%)" }}>Description</Text>
-                <View style={{ height: 1, width: "100%", backgroundColor: "hsl(0 0% 64%)" }} />
+                <View style={{ height: 1, width: "100%", backgroundColor: "hsl(19 100% 61%)" }} />
+                <Text style={{ fontSize: 18, color: "hsl(19 100% 61%)" }}>Description</Text>
+                <View style={{ height: 1, width: "100%", backgroundColor: "hsl(19 100% 61%)" }} />
               </View>
 
               <Controller

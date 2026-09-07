@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { markNotifAsRead } from "../services";
 import { Notification } from "../types";
 
@@ -26,14 +26,14 @@ export default function NotificationItem({ notif }: Props) {
 
   return (
     <>
-      <Pressable onPress={() => navigateToDetailsPage(notif.id)}>
-        <View style={styles.main}>
-          <Text style={[notif.is_read ? "" : styles.bold, { fontSize: 16 }]}>{notif.title}</Text>
-          <Text style={{ color: "hsl(0 0% 32%)", fontSize: 14 }}>{notif.type}</Text>
-          <Text style={styles.message} ellipsizeMode="tail" numberOfLines={1}>
-            {notif.message}
-          </Text>
-        </View>
+      <Pressable
+        onPress={() => navigateToDetailsPage(notif.id)}
+        style={({ pressed }) => [styles.main, pressed && styles.pressedState]}>
+        <Text style={[notif.is_read ? "" : styles.bold, { fontSize: 16 }]}>{notif.title}</Text>
+        <Text style={{ color: "hsl(0 0% 32%)", fontSize: 14 }}>{notif.type}</Text>
+        <Text style={styles.message} ellipsizeMode="tail" numberOfLines={1}>
+          {notif.message}
+        </Text>
       </Pressable>
     </>
   );
@@ -46,6 +46,10 @@ const styles = StyleSheet.create({
     borderColor: "#cccccc",
     minHeight: 32,
     padding: 16,
+  },
+
+  pressedState: {
+    backgroundColor: "hsl(0 0% 82%)",
   },
 
   bold: {
