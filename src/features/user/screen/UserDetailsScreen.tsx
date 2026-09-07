@@ -1,16 +1,19 @@
 import ActivityStatus from "@/components/ActivityStatus";
 import { useAuth } from "@/providers/AuthContext";
 import CustomButton from "@/shared/components/CustomButton";
+import { pickImageAsync } from "@/shared/services/imagePicker";
 import formatJoinedDate from "@/utils/formatJoinedDate";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useQueryClient } from "@tanstack/react-query";
+import * as ImagePicker from "expo-image-picker";
 import { Stack } from "expo-router";
 import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PersonalInformation from "../components/PersonalInformation";
+import useUpateProfilePicture from "../hooks/useUpdateProfilePicture";
 import useUpdateUser from "../hooks/useUpdateUser";
 import useUpdateUserAddress from "../hooks/useUpdateUserAddress";
 import useUser from "../hooks/useUser";
@@ -21,8 +24,10 @@ export default function UserDetailsScreen() {
   const queryClient = useQueryClient();
   const updateUserHook = useUpdateUser();
   const updateUserAddressHook = useUpdateUserAddress();
+  const updateProfilePic = useUpateProfilePicture();
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [updateFailed, setUpdateFailed] = useState<boolean>(false);
+  const [newProfile, setNewProfile] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const handleSave = () => {
     if (!userProfile || !userProfile.id) throw new Error("No user id");
@@ -58,6 +63,31 @@ export default function UserDetailsScreen() {
         );
       })();
     }
+
+    if (newProfile !== null) {
+      if (!userProfile) throw new Error("No specified user id");
+      updateProfilePic.mutate(
+        { image: newProfile, userId: userProfile?.id, oldProfilePath: userProfile?.avatar_url },
+        {
+          onSuccess: () => {
+            setUpdateSuccess(true);
+            queryClient.invalidateQueries({ queryKey: ["userProfilePic"] });
+            queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+            setNewProfile(null);
+          },
+          onError: (e) => {
+            console.log(e);
+            setUpdateFailed(true);
+          },
+        },
+      );
+    }
+  };
+
+  const handleProfilePicture = async () => {
+    const asset = await pickImageAsync(true);
+    if (!asset[0]) return;
+    setNewProfile(asset[0]);
   };
 
   return (
@@ -80,23 +110,32 @@ export default function UserDetailsScreen() {
           onClose={() => setUpdateFailed(false)}
         />
       )}
+
       <SafeAreaView edges={["bottom"]}>
         <KeyboardAwareScrollView extraScrollHeight={20} keyboardShouldPersistTaps="handled">
           <View style={styles.main}>
             <View style={styles.hero}>
               <View style={{ alignItems: "center", gap: 4 }}>
                 {!profilePicture || profilePictureLoading ? (
-                  <View style={[styles.profilePicture, styles.profilePictureEmpty]}>
-                    <FontAwesome name="user" size={52} color="hsl(0 0% 48%)" />
-                  </View>
+                  newProfile ? (
+                    <Image source={{ uri: newProfile.uri }} style={styles.profilePicture} />
+                  ) : (
+                    <View style={[styles.profilePicture, styles.profilePictureEmpty]}>
+                      <FontAwesome name="user" size={52} color="hsl(0 0% 48%)" />
+                    </View>
+                  )
                 ) : (
-                  <Image source={{ uri: profilePicture.publicUrl }} style={styles.profilePicture} />
+                  <Image
+                    source={{ uri: newProfile ? newProfile.uri : profilePicture.publicUrl }}
+                    style={styles.profilePicture}
+                  />
                 )}
                 <Pressable
                   style={({ pressed }) => [
                     styles.changePhotoButton,
                     pressed && { backgroundColor: "hsl(10 100% 82%)" },
-                  ]}>
+                  ]}
+                  onPress={handleProfilePicture}>
                   <View style={{ flexDirection: "row", gap: 8, justifyContent: "center" }}>
                     <Text style={{ color: "hsl(19, 100%, 50%)", fontSize: 12 }}>Change Photo</Text>
                     <FontAwesome6 name="pen-to-square" size={14} color="hsl(19 100% 50%)" />
@@ -126,7 +165,8 @@ export default function UserDetailsScreen() {
               <CustomButton
                 disabled={
                   updateUserHook.updateMutation.isPending ||
-                  (!updateUserAddressHook.inputHasChanged && !updateUserHook.inputHasChanged)
+                  updateProfilePic.isPending ||
+                  (!updateUserAddressHook.inputHasChanged && !updateUserHook.inputHasChanged && Boolean(!newProfile))
                 }
                 onPress={handleSave}>
                 Save Changes
