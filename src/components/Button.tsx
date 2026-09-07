@@ -16,7 +16,7 @@ export default function Button({ children, theme, onPress, disabled = false, sty
           styles.buttonContainer,
           style,
           {
-            backgroundColor: disabled ? "hsl(0, 0%, 70%)" : "hsl(19, 100%, 61%)",
+            backgroundColor: disabled ? "hsl(0, 0%, 70%)" : "hsl(0 88% 30%)",
           },
         ]}>
         <Pressable style={styles.button} onPress={onPress} disabled={disabled}>

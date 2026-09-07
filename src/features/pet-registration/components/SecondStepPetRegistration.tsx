@@ -8,7 +8,7 @@ export default function SecondStepPetRegistration({ registerPet }: PetRegistrati
   return (
     <View style={{ display: "flex", flex: 1, gap: 32 }}>
       <View style={{ rowGap: 4 }}>
-        <Text style={{ fontSize: 24, fontWeight: "medium" }}>Pet Photo</Text>
+        <Text style={{ fontSize: 24, fontWeight: "medium", color: "hsl(19 100% 61%)" }}>Pet Photo</Text>
         <Text style={{ color: "hsl(0, 0%, 30%)", fontWeight: 600, fontSize: 16 }}>
           Upload five(5) images of your pet.
         </Text>
@@ -70,7 +70,7 @@ export default function SecondStepPetRegistration({ registerPet }: PetRegistrati
               }}>
               <View style={styles.uploadButtonContainer}>
                 <Pressable onPress={registerPet.handleImagePicker}>
-                  <Lucide name="upload" size={36} color="hsl(0, 0%, 60%)" />
+                  <Lucide name="upload" size={36} color="hsl(19 100% 72%)" />
                 </Pressable>
               </View>
             </View>
@@ -85,7 +85,7 @@ export default function SecondStepPetRegistration({ registerPet }: PetRegistrati
           }}>
           <View style={styles.uploadButtonContainer}>
             <Pressable onPress={registerPet.handleImagePicker}>
-              <Lucide name="upload" size={64} color="hsl(0, 0%, 60%)" />
+              <Lucide name="upload" size={64} color="hsl(19 100% 72%)" />
             </Pressable>
           </View>
         </View>
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   uploadButtonContainer: {
     borderWidth: 1,
     borderStyle: "dashed",
-    borderColor: "hsl(0, 0%, 60%)",
+    borderColor: "hsl(19 100% 61%)",
     padding: 32,
     borderRadius: 8,
   },

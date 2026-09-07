@@ -5,7 +5,8 @@ import { useAuth } from "@/providers/AuthContext";
 import { SignupFormType } from "@/shared/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type FormErrors = Partial<Record<keyof SignupFormType, string>>;
@@ -31,10 +32,7 @@ export default function Signup() {
   };
 
   // Updates the fields in the signup form based on the key
-  const updateField = <K extends keyof SignupFormType>(
-    key: K,
-    value: SignupFormType[K],
-  ) => {
+  const updateField = <K extends keyof SignupFormType>(key: K, value: SignupFormType[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -61,8 +59,7 @@ export default function Signup() {
   const validatePassword = (pass: string) => {
     const requiredLength = 8;
     if (!pass) return "Password is required";
-    if (pass.length < requiredLength)
-      return `Password must be at least ${requiredLength} characters.`;
+    if (pass.length < requiredLength) return `Password must be at least ${requiredLength} characters.`;
     return "";
   };
 
@@ -87,8 +84,7 @@ export default function Signup() {
     let passError = validatePassword(form.password);
     if (passError) errors.password = passError;
 
-    if (form.password !== form.confirmPassword)
-      errors.confirmPassword = "Password does not match";
+    if (form.password !== form.confirmPassword) errors.confirmPassword = "Password does not match";
 
     // Set the errors
     setFormErrors(errors);
@@ -96,22 +92,18 @@ export default function Signup() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
-      <ScrollView
+    <SafeAreaView style={{ flex: 1 }} edges={["bottom", "top"]}>
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
         style={styles.mainContainer}
-        contentContainerStyle={{ rowGap: 32 }}
-      >
+        contentContainerStyle={{ rowGap: 32 }}>
         {/* Hero */}
         <View style={styles.heroContainer}>
           <View style={styles.logo}>
             <Ionicons name="camera-outline" size={32} color="#fff" />
           </View>
-          <Text style={[styles.textDefault, styles.heading]}>
-            Create Account
-          </Text>
-          <Text style={[{ color: "hsl(0, 0%, 40%)" }]}>
-            Register for PetKnows
-          </Text>
+          <Text style={[styles.textDefault, styles.heading]}>Create Account</Text>
+          <Text style={[{ color: "hsl(0, 0%, 40%)" }]}>Register for PetKnows</Text>
         </View>
 
         {/* Inputs */}
@@ -125,9 +117,7 @@ export default function Signup() {
               style={[styles.input, formErrors.firstName && styles.inputDanger]}
               onChangeText={(text: string) => updateField("firstName", text)}
             />
-            {formErrors.firstName && (
-              <Text style={styles.errorText}>{formErrors.firstName}</Text>
-            )}
+            {formErrors.firstName && <Text style={styles.errorText}>{formErrors.firstName}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -139,17 +129,12 @@ export default function Signup() {
               style={[styles.input, formErrors.lastName && styles.inputDanger]}
               onChangeText={(text: string) => updateField("lastName", text)}
             />
-            {formErrors.lastName && (
-              <Text style={styles.errorText}>{formErrors.lastName}</Text>
-            )}
+            {formErrors.lastName && <Text style={styles.errorText}>{formErrors.lastName}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>Birthdate</Text>
-            <CustomDatePicker
-              style={{ height: 50 }}
-              onConfirm={(date: Date) => updateField("birthDate", date)}
-            />
+            <CustomDatePicker style={{ height: 50 }} onConfirm={(date: Date) => updateField("birthDate", date)} />
           </View>
 
           <View style={styles.inputContainer}>
@@ -161,9 +146,7 @@ export default function Signup() {
               style={[styles.input, formErrors.lastName && styles.inputDanger]}
               onChangeText={(text: string) => updateField("fullAddress", text)}
             />
-            {formErrors.fullAddress && (
-              <Text style={styles.errorText}>{formErrors.fullAddress}</Text>
-            )}
+            {formErrors.fullAddress && <Text style={styles.errorText}>{formErrors.fullAddress}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -175,9 +158,7 @@ export default function Signup() {
               style={[styles.input, formErrors.email && styles.inputDanger]}
               onChangeText={(text: string) => updateField("email", text)}
             />
-            {formErrors.email && (
-              <Text style={styles.errorText}>{formErrors.email}</Text>
-            )}
+            {formErrors.email && <Text style={styles.errorText}>{formErrors.email}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -186,17 +167,10 @@ export default function Signup() {
             </Text>
             <InputText
               placeholder="e.g. 0923456789"
-              style={[
-                styles.input,
-                formErrors.contactNumber && styles.inputDanger,
-              ]}
-              onChangeText={(text: string) =>
-                updateField("contactNumber", text)
-              }
+              style={[styles.input, formErrors.contactNumber && styles.inputDanger]}
+              onChangeText={(text: string) => updateField("contactNumber", text)}
             />
-            {formErrors.contactNumber && (
-              <Text style={styles.errorText}>{formErrors.contactNumber}</Text>
-            )}
+            {formErrors.contactNumber && <Text style={styles.errorText}>{formErrors.contactNumber}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -209,30 +183,20 @@ export default function Signup() {
               onChangeText={(text: string) => updateField("password", text)}
               secureTextEntry={true}
             />
-            {formErrors.password && (
-              <Text style={styles.errorText}>{formErrors.password}</Text>
-            )}
+            {formErrors.password && <Text style={styles.errorText}>{formErrors.password}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>
-              Confirm Password{" "}
-              <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
+              Confirm Password <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
             </Text>
             <InputText
               placeholder="Confirm your password"
-              style={[
-                styles.input,
-                formErrors.confirmPassword && styles.inputDanger,
-              ]}
-              onChangeText={(text: string) =>
-                updateField("confirmPassword", text)
-              }
+              style={[styles.input, formErrors.confirmPassword && styles.inputDanger]}
+              onChangeText={(text: string) => updateField("confirmPassword", text)}
               secureTextEntry={true}
             />
-            {formErrors.confirmPassword && (
-              <Text style={styles.errorText}>{formErrors.confirmPassword}</Text>
-            )}
+            {formErrors.confirmPassword && <Text style={styles.errorText}>{formErrors.confirmPassword}</Text>}
           </View>
         </View>
 
@@ -242,7 +206,7 @@ export default function Signup() {
             Signup
           </Button>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -262,7 +226,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    backgroundColor: "hsl(0 0% 0%)",
+    backgroundColor: "hsl(19 100% 61%)",
     padding: 20,
     borderRadius: "50%",
   },
@@ -273,8 +237,8 @@ const styles = StyleSheet.create({
   },
 
   heading: {
-    fontSize: 24,
-    fontWeight: "semibold",
+    fontSize: 28,
+    fontWeight: "500",
   },
 
   subHeading: {

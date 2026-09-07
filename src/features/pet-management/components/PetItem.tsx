@@ -26,7 +26,9 @@ export default function PetItem({ petId, petName, petSpecies, petStatus, avatarU
 
   return (
     <>
-      <Pressable onPress={navigateToDetailsPage} style={({ pressed }) => [pressed && styles.pressedEffect]}>
+      <Pressable
+        onPress={navigateToDetailsPage}
+        style={({ pressed }) => [pressed && styles.pressedEffect, { borderRadius: 16 }]}>
         <View style={styles.mainContainer}>
           <Image source={avatarUrl ? { uri: avatarUrl } : require("@/assets/images/icon.png")} style={styles.image} />
           <View>
@@ -52,9 +54,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "hsl(0 0% 86%)",
+    borderWidth: 1,
+    borderColor: "hsl(19 100% 61%)",
     width: "100%",
+    borderRadius: 16,
+    height: 92,
   },
 
   pressedEffect: {

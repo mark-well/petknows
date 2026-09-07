@@ -24,7 +24,7 @@ export default function TabLayout() {
           borderBottomColor: "#cccccc",
           borderBottomWidth: 1,
         },
-        tabBarActiveTintColor: "#000",
+        tabBarActiveTintColor: "hsl(19 100% 61%)",
         tabBarStyle: {
           height: 110,
           paddingTop: 12,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 12,
-    backgroundColor: "#000",
+    backgroundColor: "hsl(19 100% 61%)",
     borderRadius: 50,
   },
 

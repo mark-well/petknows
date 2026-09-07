@@ -52,7 +52,7 @@ export default function DashboardScreen() {
         <Text style={styles.heroTitle}>Welcome to PetKnows</Text>
         <Text style={styles.heroSubTitle}>
           Hello,{" "}
-          <Text style={{ fontWeight: "bold", color: "#000" }}>
+          <Text style={{ fontWeight: "700", color: "hsl(221 68% 6%)" }}>
             {userProfile?.first_name} {userProfile?.last_name}!
           </Text>{" "}
           Manage your pet registrations and identifications.
@@ -82,12 +82,12 @@ export default function DashboardScreen() {
             <View
               style={[
                 {
-                  backgroundColor: "hsl(0, 0%, 20%)",
+                  backgroundColor: "hsl(19 100% 72%)",
                   padding: 12,
                   borderRadius: "50%",
                 },
               ]}>
-              <Lucide name="paw-print" size={32} color="#fff" />
+              <Lucide name="paw-print" size={32} color="hsl(19 100% 92%)" />
             </View>
           </View>
         </View>
@@ -127,7 +127,7 @@ export default function DashboardScreen() {
 
       {/* Quick Actions card*/}
       <View style={styles.quickActionsContainer}>
-        <Text style={{ fontSize: 20, fontWeight: "medium" }}>Quick Actions</Text>
+        <Text style={{ fontSize: 20, fontWeight: "600" }}>Quick Actions</Text>
 
         <IconButton
           icon={<Lucide name="paw-print" size={24} color="#fff" />}
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
 
   heroTitle: {
     fontSize: 28,
-    fontWeight: "medium",
+    fontWeight: "400",
   },
 
   heroSubTitle: {
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
 
   statisticsTitle: {
     fontSize: 20,
+    fontWeight: "600",
   },
 
   cards: {
@@ -190,7 +191,8 @@ const styles = StyleSheet.create({
 
   totalPetContainer: {
     width: "100%",
-    backgroundColor: "hsl(0, 0%, 0%)",
+    backgroundColor: "hsl(19 100% 61%)",
+    borderColor: "hsl(19 100% 48%)",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 24,
@@ -201,7 +203,7 @@ const styles = StyleSheet.create({
 
   speciesBreakdownContainer: {
     width: "100%",
-    backgroundColor: "hsl(0, 0%, 88%)",
+    backgroundColor: "hsl(19 100% 96%)",
     borderRadius: 16,
     padding: 16,
   },
@@ -236,13 +238,13 @@ const styles = StyleSheet.create({
     height: 8,
     width: "40%",
     minWidth: 128,
-    backgroundColor: "hsl(0, 0%, 95%)",
+    backgroundColor: "hsl(19 100% 92%)",
     borderRadius: 6,
   },
 
   innerBar: {
     height: "100%",
-    backgroundColor: "hsl(0, 0%, 0%)",
+    backgroundColor: "hsl(19 100% 61%)",
     borderRadius: 6,
   },
 

@@ -45,7 +45,7 @@ export default function RegisterPetScreen() {
               key={s}
               style={[
                 styles.stepBar,
-                { backgroundColor: s + 1 <= registerPet.currentStep ? "#000" : "hsl(0, 0%, 80%)" },
+                { backgroundColor: s + 1 <= registerPet.currentStep ? "hsl(19 100% 61%)" : "hsl(19 100% 92%)" },
               ]}></View>
           ))}
         </View>

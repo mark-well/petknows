@@ -37,7 +37,7 @@ export default function IdentifyPetScreen() {
 
       <View style={styles.buttonContainer}>
         <IconButton
-          icon={<Lucide name="upload" size={24} color="#000" />}
+          icon={<Lucide name="upload" size={24} color="hsl(0 88% 30%)" />}
           title="Upload Photo"
           subTitle="Select an image from your device"
           onPress={pickImageAsync}

@@ -16,7 +16,7 @@ export default function FirstStepPetRegistration({ registerPet }: PetRegistratio
     <View style={{ rowGap: 32 }}>
       <View style={{ rowGap: 16 }}>
         <View style={{ rowGap: 4, marginBottom: 16 }}>
-          <Text style={{ fontSize: 24, fontWeight: "medium" }}>Pet Information</Text>
+          <Text style={{ fontSize: 24, fontWeight: "medium", color: "hsl(19 100% 61%)" }}>Pet Information</Text>
           <Text style={{ color: "hsl(0, 0%, 30%)", fontSize: 16 }}>Enter the pet's details</Text>
         </View>
 
@@ -108,7 +108,7 @@ export default function FirstStepPetRegistration({ registerPet }: PetRegistratio
 
       <View>
         <View style={{ rowGap: 8, marginBottom: 16 }}>
-          <Text style={{ fontSize: 24, fontWeight: "medium" }}>Place of Registration</Text>
+          <Text style={{ fontSize: 24, fontWeight: "medium", color: "hsl(19 100% 61%)" }}>Place of Registration</Text>
           <Text style={{ color: "hsl(0, 0%, 30%)", fontSize: 16 }}>Enter your address</Text>
         </View>
 
