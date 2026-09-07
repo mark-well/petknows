@@ -74,6 +74,11 @@ export default function PetCard({ pet, location }: Props) {
   });
 
   const handleNotifyOwner = async (recipientId: string | null, senderId: string | null, pet: any | null) => {
+    if (recipientId === senderId) {
+      alert("You cannot notify yourself");
+      throw new Error("User cannot notify themselves.");
+    }
+
     const { id } = await newIdentificationMutation.mutateAsync({
       petId: pet.id,
       userId: senderId ?? null,
@@ -207,7 +212,9 @@ export default function PetCard({ pet, location }: Props) {
           </View>
         </View>
 
-        <Button onPress={() => handleNotifyOwner(pet.owner?.id ?? null, userProfile?.id ?? null, pet)}>
+        <Button
+          onPress={() => handleNotifyOwner(pet.owner?.id ?? null, userProfile?.id ?? null, pet)}
+          disabled={pet.owner?.id === userProfile?.id}>
           Notify Owner
         </Button>
       </View>
