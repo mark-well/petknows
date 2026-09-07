@@ -5,4 +5,4 @@ build-dev:
   eas build --profile development --platform android
 
 build-preview:
-  eas build --preview development --platform android
+  eas build --profile preview --platform android
