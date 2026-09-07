@@ -81,6 +81,7 @@ export default function AuthProvider({ children }: Props) {
   };
 
   const signUp = async (signupForm: SignupFormType) => {
+    if (!signupForm.email) throw new Error("No email, provide an email for sign up");
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signUp({
@@ -96,9 +97,14 @@ export default function AuthProvider({ children }: Props) {
         const { error } = await supabase
           .from("profiles")
           .update({
-            first_name: signupForm.firstName,
-            last_name: signupForm.lastName,
-            birth_date: signupForm.birthDate?.toISOString(),
+            first_name: signupForm.first_name,
+            last_name: signupForm.last_name,
+            birth_date: signupForm.birth_date,
+            province_id: signupForm.province_id,
+            city_id: signupForm.city_id,
+            barangay_id: signupForm.barangay_id,
+            contact_number: signupForm.contact_number,
+            sex: signupForm.sex,
           })
           .eq("id", data.user.id);
 

@@ -33,5 +33,7 @@ export default function useAddresses() {
     setSelectedProvince,
     setSelectedCity,
     setSelectedBarangay,
+    selectedProvince,
+    selectedCity,
   };
 }

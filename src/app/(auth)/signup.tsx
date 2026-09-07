@@ -1,11 +1,15 @@
 import Button from "@/components/Button";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import InputText from "@/components/InputText";
+import { SelectListType } from "@/features/pet-registration/types";
 import { useAuth } from "@/providers/AuthContext";
-import { SignupFormType } from "@/shared/types";
+import useAddresses from "@/shared/hooks/useAddresses";
+import { SignupFormType, UserSex } from "@/shared/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
+import { SelectList } from "react-native-dropdown-select-list";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,82 +17,71 @@ type FormErrors = Partial<Record<keyof SignupFormType, string>>;
 
 export default function Signup() {
   const { signUp, loading } = useAuth();
-  const [form, setForm] = useState<SignupFormType>({
-    firstName: "",
-    lastName: "",
-    birthDate: null,
-    fullAddress: "",
-    contactNumber: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const {
+    control,
+    handleSubmit,
+    formState: { errors: formErrors },
+  } = useForm<SignupFormType>();
+  const {
+    provinces,
+    cities,
+    barangay,
+    selectedProvince,
+    selectedCity,
+    setSelectedProvince,
+    setSelectedCity,
+    setSelectedBarangay,
+  } = useAddresses();
+  const [mappedProvince, setMappedProvince] = useState<SelectListType[]>([]);
+  const [mappedCities, setMappedCities] = useState<SelectListType[]>([]);
+  const [mappedBarangay, setMappedBarangay] = useState<SelectListType[]>([]);
+  const userSex: UserSex[] = ["Male", "Female", "Other"];
+  const mappedUserSex: SelectListType[] = userSex.map((s) => ({ key: s, value: s }));
+  const [passwordNotMatch, setPasswordNotMatch] = useState<boolean>(false);
+  const [invalidPhone, setInvalidPhone] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMappedProvince(provinces?.map((p) => ({ key: p.id, value: p.name ?? "" })) ?? []);
+  }, [provinces]);
+
+  useEffect(() => {
+    setMappedCities(cities?.map((c) => ({ key: c.id, value: c.name ?? "" })) ?? []);
+  }, [cities]);
+
+  useEffect(() => {
+    setMappedBarangay(barangay?.map((b) => ({ key: b.id, value: b.name ?? "" })) ?? []);
+  }, [barangay]);
 
   // Sign up account
-  const handleSumbit = () => {
-    if (validateForm()) {
-      signUp(form);
-    }
+  const handleSignup = () => {
+    handleSubmit((data) => {
+      setPasswordNotMatch(false);
+      setInvalidPhone(false);
+
+      if (!passwordMatched(data.password, data.confirmPassword)) {
+        setPasswordNotMatch(true);
+        return;
+      }
+
+      if (!validateTenDigitPhone(data.contact_number ?? "")) {
+        setInvalidPhone(true);
+        return;
+      }
+
+      // Sign up
+      signUp(data);
+    })();
   };
 
-  // Updates the fields in the signup form based on the key
-  const updateField = <K extends keyof SignupFormType>(key: K, value: SignupFormType[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  // ==== VALIDATION FUNCTIONS ====
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const validateEmail = (email: string) => {
-    if (!email.trim()) return "Email is required";
-    if (!/\S+@\S+\.\S+/.test(email)) return "Invalid email";
-    return "";
-  };
-
-  const validateRequired = (value: string) => {
-    if (!value.trim()) return "This field is required.";
-    return "";
+  const passwordMatched = (password: string, confirmPassword: string) => {
+    if (password === confirmPassword) return true;
+    return false;
   };
 
   const validateTenDigitPhone = (phone: string) => {
     const cleaned = phone.replace(/\D/g, "");
-    if (!phone.trim()) return "Phone is required.";
-    if (!/^\d{11}$/.test(cleaned)) return "Invalid phone number";
-    return "";
-  };
-
-  const validatePassword = (pass: string) => {
-    const requiredLength = 8;
-    if (!pass) return "Password is required";
-    if (pass.length < requiredLength) return `Password must be at least ${requiredLength} characters.`;
-    return "";
-  };
-
-  const validateForm = () => {
-    const errors: FormErrors = {};
-
-    let firstnameError = validateRequired(form.firstName);
-    if (firstnameError) errors.firstName = firstnameError;
-
-    let lastnameError = validateRequired(form.lastName);
-    if (lastnameError) errors.lastName = lastnameError;
-
-    let addressError = validateRequired(form.fullAddress);
-    if (addressError) errors.fullAddress = addressError;
-
-    let contactError = validateRequired(form.contactNumber);
-    if (contactError) errors.contactNumber = contactError;
-
-    let emailError = validateEmail(form.email);
-    if (emailError) errors.email = emailError;
-
-    let passError = validatePassword(form.password);
-    if (passError) errors.password = passError;
-
-    if (form.password !== form.confirmPassword) errors.confirmPassword = "Password does not match";
-
-    // Set the errors
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    if (!/^\d{11}$/.test(cleaned)) return false;
+    return true;
   };
 
   return (
@@ -110,99 +103,249 @@ export default function Signup() {
         <View style={styles.inputGroup}>
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>
-              Firtname <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
+              Firt Name <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
             </Text>
-            <InputText
-              placeholder="Enter your first name"
-              style={[styles.input, formErrors.firstName && styles.inputDanger]}
-              onChangeText={(text: string) => updateField("firstName", text)}
+            <Controller
+              control={control}
+              name="first_name"
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  placeholder="Enter your first name"
+                  style={[styles.input, formErrors.first_name && styles.inputDanger]}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                />
+              )}
             />
-            {formErrors.firstName && <Text style={styles.errorText}>{formErrors.firstName}</Text>}
+            {formErrors.first_name && <Text style={styles.errorText}>First name is required</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>
-              Lastname <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
+              Last Name <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
             </Text>
-            <InputText
-              placeholder="Enter your last name"
-              style={[styles.input, formErrors.lastName && styles.inputDanger]}
-              onChangeText={(text: string) => updateField("lastName", text)}
+            <Controller
+              control={control}
+              name="last_name"
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  placeholder="Enter your last name"
+                  style={[styles.input, formErrors.last_name && styles.inputDanger]}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                />
+              )}
             />
-            {formErrors.lastName && <Text style={styles.errorText}>{formErrors.lastName}</Text>}
+            {formErrors.last_name && <Text style={styles.errorText}>Last name is required</Text>}
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={[styles.textDefault]}>Birthdate</Text>
-            <CustomDatePicker style={{ height: 50 }} onConfirm={(date: Date) => updateField("birthDate", date)} />
+            <Text style={[styles.textDefault]}>Birth Date</Text>
+            <Controller
+              control={control}
+              name="birth_date"
+              render={({ field: { onChange } }) => (
+                <CustomDatePicker
+                  style={{ height: 50 }}
+                  onConfirm={(date: Date) => onChange(date.toISOString().split("T")[0])}
+                />
+              )}
+            />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={[styles.textDefault]}>
-              Full address <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
-            </Text>
-            <InputText
-              placeholder="Enter your full address"
-              style={[styles.input, formErrors.lastName && styles.inputDanger]}
-              onChangeText={(text: string) => updateField("fullAddress", text)}
+          <View style={{ gap: 8 }}>
+            <Text style={{ color: "hsl(0 0% 32%)" }}>Sex</Text>
+            <Controller
+              control={control}
+              name="sex"
+              render={({ field: { onChange } }) => (
+                <SelectList
+                  data={mappedUserSex}
+                  setSelected={(key: string) => {
+                    onChange(key);
+                    setSelectedBarangay(key);
+                  }}
+                  save="key"
+                  inputStyles={{ textTransform: "capitalize" }}
+                  dropdownTextStyles={{ textTransform: "capitalize" }}
+                  search={false}
+                />
+              )}
             />
-            {formErrors.fullAddress && <Text style={styles.errorText}>{formErrors.fullAddress}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>
               Email <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
             </Text>
-            <InputText
-              placeholder="youremail@gmail.com"
-              style={[styles.input, formErrors.email && styles.inputDanger]}
-              onChangeText={(text: string) => updateField("email", text)}
+            <Controller
+              control={control}
+              name="email"
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  placeholder="e.g. youremail@gmail.com"
+                  style={[styles.input, formErrors.email && styles.inputDanger]}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                />
+              )}
             />
-            {formErrors.email && <Text style={styles.errorText}>{formErrors.email}</Text>}
+            {formErrors.email && <Text style={styles.errorText}>Email is required</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>
-              Contact Number <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
+              Phone <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
             </Text>
-            <InputText
-              placeholder="e.g. 0923456789"
-              style={[styles.input, formErrors.contactNumber && styles.inputDanger]}
-              onChangeText={(text: string) => updateField("contactNumber", text)}
+            <Controller
+              control={control}
+              name="contact_number"
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  placeholder="e.g. 09123456789"
+                  style={[styles.input, (formErrors.contact_number || invalidPhone) && styles.inputDanger]}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                />
+              )}
             />
-            {formErrors.contactNumber && <Text style={styles.errorText}>{formErrors.contactNumber}</Text>}
+            {formErrors.contact_number && <Text style={styles.errorText}>Phone number is required</Text>}
+            {invalidPhone && <Text style={styles.errorText}>Invalid phone number</Text>}
+          </View>
+
+          <View style={{ gap: 16, marginTop: 8 }}>
+            <View style={{ gap: 8 }}>
+              <Text style={{ color: "hsl(0 0% 32%)" }}>Province</Text>
+              <Controller
+                control={control}
+                name="province_id"
+                render={({ field: { onChange } }) => (
+                  <SelectList
+                    data={mappedProvince}
+                    setSelected={(key: string) => {
+                      onChange(key);
+                      setSelectedProvince(key);
+                    }}
+                    save="key"
+                    inputStyles={{ textTransform: "capitalize" }}
+                    dropdownTextStyles={{ textTransform: "capitalize" }}
+                    search={false}
+                  />
+                )}
+              />
+            </View>
+
+            <View style={{ gap: 8 }}>
+              <Text style={{ color: "hsl(0 0% 32%)" }}>City</Text>
+              <Controller
+                control={control}
+                name="city_id"
+                render={({ field: { onChange } }) => {
+                  if (!selectedProvince)
+                    return (
+                      <View style={styles.disabledSelectList}>
+                        <Text style={{ color: "hsl(0, 0%, 60%)" }}>Select Option</Text>
+                      </View>
+                    );
+                  return (
+                    <SelectList
+                      data={mappedCities}
+                      setSelected={(key: string) => {
+                        onChange(key);
+                        setSelectedCity(key);
+                      }}
+                      save="key"
+                      inputStyles={{ textTransform: "capitalize" }}
+                      dropdownTextStyles={{ textTransform: "capitalize" }}
+                      search={false}
+                    />
+                  );
+                }}
+              />
+            </View>
+
+            <View style={{ gap: 8 }}>
+              <Text style={{ color: "hsl(0 0% 32%)" }}>Barangay</Text>
+              <Controller
+                control={control}
+                name="barangay_id"
+                render={({ field: { onChange } }) => {
+                  if (!selectedCity)
+                    return (
+                      <View style={styles.disabledSelectList}>
+                        <Text style={{ color: "hsl(0, 0%, 60%)" }}>Select Option</Text>
+                      </View>
+                    );
+                  return (
+                    <SelectList
+                      data={mappedBarangay}
+                      setSelected={(key: string) => {
+                        onChange(key);
+                        setSelectedBarangay(key);
+                      }}
+                      save="key"
+                      inputStyles={{ textTransform: "capitalize" }}
+                      dropdownTextStyles={{ textTransform: "capitalize" }}
+                      search={false}
+                    />
+                  );
+                }}
+              />
+            </View>
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>
               Password <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
             </Text>
-            <InputText
-              placeholder="Enter your password"
-              style={[styles.input, formErrors.password && styles.inputDanger]}
-              onChangeText={(text: string) => updateField("password", text)}
-              secureTextEntry={true}
+            <Controller
+              control={control}
+              name="password"
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  placeholder="Enter your password"
+                  style={[styles.input, (formErrors.password || passwordNotMatch) && styles.inputDanger]}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                  secureTextEntry={true}
+                />
+              )}
             />
-            {formErrors.password && <Text style={styles.errorText}>{formErrors.password}</Text>}
+            {formErrors.password && <Text style={styles.errorText}>Password is required</Text>}
+            {passwordNotMatch && <Text style={styles.errorText}>Password does not match</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.textDefault]}>
-              Confirm Password <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
+              Confirm password <Text style={{ color: "hsl(0 100% 50%)" }}>*</Text>
             </Text>
-            <InputText
-              placeholder="Confirm your password"
-              style={[styles.input, formErrors.confirmPassword && styles.inputDanger]}
-              onChangeText={(text: string) => updateField("confirmPassword", text)}
-              secureTextEntry={true}
+            <Controller
+              control={control}
+              name="confirmPassword"
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  placeholder="Confirm your password"
+                  style={[styles.input, (formErrors.confirmPassword || passwordNotMatch) && styles.inputDanger]}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                  secureTextEntry={true}
+                />
+              )}
             />
-            {formErrors.confirmPassword && <Text style={styles.errorText}>{formErrors.confirmPassword}</Text>}
+            {formErrors.confirmPassword && <Text style={styles.errorText}>Confirm your password</Text>}
+            {passwordNotMatch && <Text style={styles.errorText}>Password does not match</Text>}
           </View>
         </View>
 
         {/* Signup Button */}
         <View style={{ flex: 1, marginBottom: 40 }}>
-          <Button onPress={handleSumbit} disabled={loading}>
+          <Button onPress={handleSignup} disabled={loading}>
             Signup
           </Button>
         </View>
@@ -270,5 +413,15 @@ const styles = StyleSheet.create({
   errorText: {
     color: "hsl(0 100% 60.2%)",
     fontSize: 12,
+  },
+
+  disabledSelectList: {
+    width: "100%",
+    height: 46,
+    borderColor: "hsl(0, 0%, 80%)",
+    borderWidth: 1,
+    borderRadius: 8,
+    justifyContent: "center",
+    paddingHorizontal: 16,
   },
 });
