@@ -63,7 +63,7 @@ export default function NotificationDetailsScreen({ id }: Props) {
               <Text
                 style={{
                   color: "hsl(0 0% 32%)",
-                }}>{`${data?.sender?.user_contact[0].number}`}</Text>
+                }}>{`${data?.sender?.contact_number}`}</Text>
             </View>
             <Text style={styles.message}>{data?.message}</Text>
           </View>

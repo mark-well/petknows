@@ -56,7 +56,7 @@ export async function markNotifAsRead(notifId: string) {
 export async function getNotification(notifId: string) {
   const { data, error } = await supabase
     .from("notifications")
-    .select(`*, sender:profiles!notifications_sender_id_fkey(id, first_name, last_name, user_contact(number))`)
+    .select(`*, sender:profiles!notifications_sender_id_fkey(id, first_name, last_name, contact_number)`)
     .eq("id", notifId)
     .single();
 
