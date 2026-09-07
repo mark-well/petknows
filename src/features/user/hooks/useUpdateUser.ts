@@ -15,6 +15,7 @@ export default function useUpdateUser() {
       first_name: userProfile?.first_name,
       last_name: userProfile?.last_name,
       contact_number: userProfile?.contact_number,
+      sex: userProfile?.sex,
     },
   });
 

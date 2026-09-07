@@ -1,5 +1,7 @@
+import { SelectListType } from "@/features/pet-registration/types";
 import { useAuth } from "@/providers/AuthContext";
 import useAddresses from "@/shared/hooks/useAddresses";
+import { UserSex } from "@/shared/types";
 import formatAddress from "@/utils/formatAddress";
 import formatJoinedDate from "@/utils/formatJoinedDate";
 import { Host, Picker } from "@expo/ui";
@@ -8,6 +10,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { StyleSheet, Text, TextInput, View } from "react-native";
+import { SelectList } from "react-native-dropdown-select-list";
 import useUpdateUser from "../hooks/useUpdateUser";
 import useUpdateUserAddress from "../hooks/useUpdateUserAddress";
 import useUser from "../hooks/useUser";
@@ -22,9 +25,12 @@ export default function PersonalInformation({ updateUserHook, updateAddressHook 
   const { userProfile } = useAuth();
   const { userAddress } = useUser();
   const { provinces, cities, barangay, setSelectedProvince, setSelectedCity, setSelectedBarangay } = useAddresses();
+  const userSex: UserSex[] = ["Male", "Female", "Other"];
+  const mappedUserSex: SelectListType[] = userSex.map((s) => ({ key: s, value: s }));
   const [editFirstName, setEditFirstName] = useState<boolean>(false);
   const [editLastName, setEditLastName] = useState<boolean>(false);
   const [editPhone, setEditPhone] = useState<boolean>(false);
+  const [editSex, setEditSex] = useState<boolean>(false);
   const [editAddress, setEditAddress] = useState<boolean>(false);
 
   useEffect(() => {
@@ -140,6 +146,53 @@ export default function PersonalInformation({ updateUserHook, updateAddressHook 
               style={styles.rowInput}
             />
           </View>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rowPlaceholder}>Sex</Text>
+              {editSex ? (
+                <Controller
+                  control={updateUserHook.control}
+                  name="sex"
+                  render={({ field: { onChange } }) => (
+                    <SelectList
+                      data={mappedUserSex}
+                      setSelected={(key: string) => {
+                        onChange(key);
+                        setSelectedBarangay(key);
+                      }}
+                      save="key"
+                      inputStyles={{ textTransform: "capitalize" }}
+                      dropdownTextStyles={{ textTransform: "capitalize" }}
+                      search={false}
+                    />
+                  )}
+                />
+              ) : (
+                <Controller
+                  control={updateUserHook.control}
+                  name="sex"
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <TextInput
+                      value={value ?? ""}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      onSubmitEditing={() => setEditSex(false)}
+                      returnKeyType="done"
+                      style={[styles.rowInput, editPhone && styles.editableInput]}
+                      editable={false}
+                    />
+                  )}
+                />
+              )}
+            </View>
+            <ToggleTwoIconButtons
+              toggle={editSex}
+              onPress={() => setEditSex(() => toggleEditables(editSex))}
+              icon1={<AntDesign name="close" size={18} color="hsl(19, 100%, 61%)" />}
+              icon2={<FontAwesome5 name="pen" size={14} color="hsl(19, 100%, 61%)" />}
+            />
+          </View>
+
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <View style={{ flex: 1 }}>
               <Text style={styles.rowPlaceholder}>Address</Text>
