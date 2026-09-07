@@ -6,7 +6,11 @@ import { UpdateUserRecord } from "../types";
 
 export default function useUpdateUser() {
   const { userProfile } = useAuth();
-  const { control, handleSubmit } = useForm<UpdateUserRecord>({
+  const {
+    control,
+    handleSubmit,
+    formState: { isDirty },
+  } = useForm<UpdateUserRecord>({
     defaultValues: {
       first_name: userProfile?.first_name,
       last_name: userProfile?.last_name,
@@ -18,9 +22,11 @@ export default function useUpdateUser() {
     mutationFn: ({ user_id, updatedData }: { user_id: string; updatedData: UpdateUserRecord }) =>
       updateUserDetails(user_id, updatedData),
   });
+
   return {
     control,
     handleSubmit,
+    inputHasChanged: isDirty,
     updateMutation,
   };
 }

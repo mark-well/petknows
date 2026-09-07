@@ -17,29 +17,47 @@ import useUser from "../hooks/useUser";
 
 export default function UserDetailsScreen() {
   const { userProfile } = useAuth();
-  const queryClient = useQueryClient();
   const { profilePicture, profilePictureLoading } = useUser();
+  const queryClient = useQueryClient();
   const updateUserHook = useUpdateUser();
   const updateUserAddressHook = useUpdateUserAddress();
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [updateFailed, setUpdateFailed] = useState<boolean>(false);
 
   const handleSave = () => {
-    updateUserHook.handleSubmit((data) => {
-      // updateUserHook.submit(data);
-      if (!userProfile || !userProfile.id) throw new Error("No user id");
-      updateUserHook.updateMutation.mutate(
-        { user_id: userProfile.id, updatedData: data },
-        {
-          onSuccess: () => {
-            setUpdateSuccess(true);
-            queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+    if (!userProfile || !userProfile.id) throw new Error("No user id");
+
+    // Update user details
+    if (updateUserHook.inputHasChanged) {
+      updateUserHook.handleSubmit((data) => {
+        updateUserHook.updateMutation.mutate(
+          { user_id: userProfile.id, updatedData: data },
+          {
+            onSuccess: () => {
+              setUpdateSuccess(true);
+              queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+            },
+            onError: () => setUpdateFailed(true),
           },
-          onError: () => setUpdateFailed(true),
-        },
-      );
-    })();
-    updateUserAddressHook.handleSubmit((data) => updateUserAddressHook.submit(data))();
+        );
+      })();
+    }
+
+    // Update user address
+    if (updateUserAddressHook.inputHasChanged) {
+      updateUserAddressHook.handleSubmit((data) => {
+        updateUserAddressHook.updateMutation.mutate(
+          { userId: userProfile.id, updatedAddress: data },
+          {
+            onSuccess: () => {
+              setUpdateSuccess(true);
+              queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+            },
+            onError: () => setUpdateFailed(true),
+          },
+        );
+      })();
+    }
   };
 
   return (
@@ -105,8 +123,13 @@ export default function UserDetailsScreen() {
                   />
                 </View>
               </View>
-              <CustomButton disabled={updateUserHook.updateMutation.isPending} onPress={handleSave}>
-                Save
+              <CustomButton
+                disabled={
+                  updateUserHook.updateMutation.isPending ||
+                  (!updateUserAddressHook.inputHasChanged && !updateUserHook.inputHasChanged)
+                }
+                onPress={handleSave}>
+                Save Changes
               </CustomButton>
             </View>
           </View>

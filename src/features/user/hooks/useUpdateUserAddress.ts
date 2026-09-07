@@ -1,15 +1,26 @@
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import updateUserAddress from "../api/updateUserAddress";
 import { AddressFormType } from "../types";
 
 export default function useUpdateUserAddress() {
-  const { control, handleSubmit, reset } = useForm<AddressFormType>();
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isDirty },
+  } = useForm<AddressFormType>();
 
-  const submit = (data: AddressFormType) => {};
+  const updateMutation = useMutation({
+    mutationFn: ({ userId, updatedAddress }: { userId: string; updatedAddress: AddressFormType }) =>
+      updateUserAddress(userId, updatedAddress),
+  });
 
   return {
     control,
     handleSubmit,
-    submit,
+    inputHasChanged: isDirty,
     reset,
+    updateMutation,
   };
 }

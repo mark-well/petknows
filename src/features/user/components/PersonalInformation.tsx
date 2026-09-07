@@ -65,6 +65,8 @@ export default function PersonalInformation({ updateUserHook, updateAddressHook 
                     value={value ?? ""}
                     onChangeText={onChange}
                     onBlur={onBlur}
+                    onSubmitEditing={() => setEditFirstName(false)}
+                    returnKeyType="done"
                     style={[styles.rowInput, editFirstName && styles.editableInput]}
                     editable={editFirstName}
                   />
@@ -89,6 +91,8 @@ export default function PersonalInformation({ updateUserHook, updateAddressHook 
                     value={value ?? ""}
                     onChangeText={onChange}
                     onBlur={onBlur}
+                    onSubmitEditing={() => setEditLastName(false)}
+                    returnKeyType="done"
                     style={[styles.rowInput, editLastName && styles.editableInput]}
                     editable={editLastName}
                   />
@@ -113,6 +117,8 @@ export default function PersonalInformation({ updateUserHook, updateAddressHook 
                     value={value ?? ""}
                     onChangeText={onChange}
                     onBlur={onBlur}
+                    onSubmitEditing={() => setEditPhone(false)}
+                    returnKeyType="done"
                     style={[styles.rowInput, editPhone && styles.editableInput]}
                     editable={editPhone}
                   />
