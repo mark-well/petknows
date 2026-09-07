@@ -12,10 +12,8 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png",
+        backgroundColor: "hsl(19 100% 61%)",
+        foregroundImage: "./assets/images/logo.png",
       },
       predictiveBackGestureEnabled: false,
       package: "com.avinanto.petknows",
