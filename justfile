@@ -3,3 +3,6 @@ gen-db-types:
 
 build-dev:
   eas build --profile development --platform android
+
+build-preview:
+  eas build --preview development --platform android
