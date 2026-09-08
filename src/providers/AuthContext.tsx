@@ -4,7 +4,7 @@ import isConnectedToInernet from "@/utils/checkNetworkConnectivity";
 import { JwtPayload } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { Database } from "../shared/types/database.types";
@@ -148,4 +148,8 @@ export default function AuthProvider({ children }: Props) {
   );
 }
 
-export const useAuth = () => {};
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+  return ctx;
+};
