@@ -1,9 +1,10 @@
 import getUserProfile from "@/features/user/services/getUserProfile";
 import { SignupFormType } from "@/shared/types";
+import isConnectedToInernet from "@/utils/checkNetworkConnectivity";
 import { JwtPayload } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { Database } from "../shared/types/database.types";
@@ -21,15 +22,6 @@ type Props = {
   children: React.ReactNode;
 };
 
-// type UserProfile = {
-//   id: string;
-//   email: string | null;
-//   first_name: string | null;
-//   last_name: string | null;
-//   birth_date: Date | null;
-//   created_at: string | null;
-//   address: string | null;
-// };
 type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -62,13 +54,31 @@ export default function AuthProvider({ children }: Props) {
   // Sign in using email and password
   const signInWithEmail = async (email: string, password: string) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
 
-    if (error) Alert.alert("Login Error " + error.message);
-    setLoading(false);
+    //Check connectivity before sign in
+    if (!(await isConnectedToInernet())) {
+      Alert.alert("No Internet", "Please connect to the internet and try again.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        Alert.alert("Login Error", "There was an error while trying to login.");
+        console.error("Login Error: ", error);
+        return;
+      }
+    } catch (error) {
+      Alert.alert("Connection Error", "We couldn't connect to the server. Please try again.");
+      console.error("Connection Error: ", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Sign out
@@ -81,16 +91,26 @@ export default function AuthProvider({ children }: Props) {
   };
 
   const signUp = async (signupForm: SignupFormType) => {
+    setLoading(true);
+
+    //Check connectivity before sign up
+    if (!(await isConnectedToInernet())) {
+      Alert.alert("No Internet", "Please connect to the internet and try again.");
+      setLoading(false);
+      return;
+    }
+
     if (!signupForm.email) throw new Error("No email, provide an email for sign up");
     try {
-      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email: signupForm.email,
         password: signupForm.password,
       });
 
       if (error) {
-        if (error) throw error;
+        Alert.alert("Signup Error: " + error.message);
+        console.error("Signup Error: ", error);
+        return;
       }
 
       if (data.user && data.session) {
@@ -113,9 +133,9 @@ export default function AuthProvider({ children }: Props) {
         }
         router.replace("/(tabs)");
       }
-    } catch (e) {
-      console.log(e);
-      setLoading(false);
+    } catch (error) {
+      Alert.alert("Connection Error", "We couldn't connect to the server. Please try again.");
+      console.error("Connection Error: ", error);
     } finally {
       setLoading(false);
     }
@@ -128,8 +148,4 @@ export default function AuthProvider({ children }: Props) {
   );
 }
 
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
-  return ctx;
-};
+export const useAuth = () => {};
