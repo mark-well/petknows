@@ -136,7 +136,7 @@ export default function UserDetailsScreen() {
                     pressed && { backgroundColor: "hsl(10 100% 82%)" },
                   ]}
                   onPress={handleProfilePicture}>
-                  <View style={{ flexDirection: "row", gap: 8, justifyContent: "center" }}>
+                  <View style={{ flexDirection: "row", gap: 8, justifyContent: "center", alignItems: "center" }}>
                     <Text style={{ color: "hsl(19, 100%, 50%)", fontSize: 12 }}>Change Photo</Text>
                     <FontAwesome6 name="pen-to-square" size={14} color="hsl(19 100% 50%)" />
                   </View>
