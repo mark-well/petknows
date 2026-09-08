@@ -12,7 +12,7 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        backgroundColor: "hsl(19 100% 61%)",
+        backgroundColor: "#FF7738",
         foregroundImage: "./assets/images/logo.png",
       },
       predictiveBackGestureEnabled: false,
