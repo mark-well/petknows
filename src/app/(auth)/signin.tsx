@@ -1,3 +1,4 @@
+import LoadingModal from "@/components/LoadingModal";
 import { useAuth } from "@/providers/AuthContext";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Link } from "expo-router";
@@ -31,7 +32,7 @@ export default function Login() {
         <Text style={[{ color: "hsl(221 68% 6%)", fontSize: 16 }]}>Pet Registration & Identification</Text>
       </View>
 
-      {loading && <Text>Logging you in</Text>}
+      {loading && <LoadingModal title="Loggin in" message="Please wait..." />}
 
       <View style={{ width: "100%", rowGap: 8 }}>
         <Text style={styles.text}>Email</Text>
