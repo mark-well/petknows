@@ -93,7 +93,7 @@ export default function Signup() {
         {/* Hero */}
         <View style={styles.heroContainer}>
           <View style={styles.logo}>
-            <Ionicons name="camera-outline" size={32} color="#fff" />
+            <Ionicons name="paw" size={32} color="#fff" />
           </View>
           <Text style={[styles.textDefault, styles.heading]}>Create Account</Text>
           <Text style={[{ color: "hsl(0, 0%, 40%)" }]}>Register for PetKnows</Text>
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   logo: {
     backgroundColor: "hsl(19 100% 61%)",
     padding: 20,
-    borderRadius: "50%",
+    borderRadius: 24,
   },
 
   textDefault: {

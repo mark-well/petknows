@@ -4,7 +4,7 @@ export default {
     slug: "petknows",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/logo.png",
+    icon: "./assets/images/petknows-logo-rounded.png",
     scheme: "petknows",
     userInterfaceStyle: "automatic",
     ios: {
@@ -13,7 +13,7 @@ export default {
     android: {
       adaptiveIcon: {
         backgroundColor: "#FF7738",
-        foregroundImage: "./assets/images/logo.png",
+        foregroundImage: "./assets/images/petknows-logo-square.png",
       },
       predictiveBackGestureEnabled: false,
       package: "com.avinanto.petknows",

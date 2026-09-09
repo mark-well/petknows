@@ -48,7 +48,7 @@ export default function TabLayout() {
           },
           headerLeft: () => (
             <View style={styles.logo}>
-              <Ionicons name="camera-outline" size={24} color="#fff" />
+              <Ionicons name="paw" size={24} color="#fff" />
             </View>
           ),
           headerRight: () => (
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
     backgroundColor: "hsl(19 100% 61%)",
-    borderRadius: 50,
+    borderRadius: 16,
   },
 
   notifBadgeContainer: {

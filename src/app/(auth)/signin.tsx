@@ -26,7 +26,7 @@ export default function Login() {
     <View style={styles.container}>
       <View style={styles.heroContainer}>
         <View style={styles.logo}>
-          <Ionicons name="camera-outline" size={32} color="#fff" />
+          <Ionicons name="paw" size={32} color="#fff" />
         </View>
         <Text style={[styles.textDefault, styles.heading]}>PetKnows</Text>
         <Text style={[{ color: "hsl(221 68% 6%)", fontSize: 16 }]}>Pet Registration & Identification</Text>
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   logo: {
     backgroundColor: "hsl(19 100% 61%)",
     padding: 20,
-    borderRadius: "50%",
+    borderRadius: 24,
   },
 
   textDefault: {

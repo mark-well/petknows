@@ -18,6 +18,10 @@ export default function AppSettingsScreen() {
     router.push("/user");
   };
 
+  const navigateToUserAboutScreen = () => {
+    router.push("/about");
+  };
+
   return (
     <>
       {loading && <LoadingModal title="Signing Out" message="Signing you out, please wait..." />}
@@ -43,7 +47,7 @@ export default function AppSettingsScreen() {
 
         <View>
           <SettingsItem icon="user-circle-o" text="Personal Information" onPress={navigateToUserDetailsScreen} />
-          <SettingsItem icon="info-circle" text="About Petknows" />
+          <SettingsItem icon="info-circle" text="About Petknows" onPress={navigateToUserAboutScreen} />
           <SettingsItem icon="sign-out" text="Logout" onPress={handleSignOut} />
         </View>
       </View>
