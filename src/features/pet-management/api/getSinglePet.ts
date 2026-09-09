@@ -11,7 +11,7 @@ export default async function getSinglePet(petId: string) {
       pet_type,
       status,
       created_at,
-      mao:place_of_registration(name),
+      mao:place_of_registration(office_name),
       avatar_url,
       breed,
       color,
