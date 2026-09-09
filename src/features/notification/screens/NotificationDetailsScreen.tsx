@@ -1,11 +1,11 @@
 import { getNotification } from "@/features/notification/services";
 import getIdentificationRecord from "@/features/pet-identification/services/getIdentificationRecord";
 import { formatDateTime } from "@/utils/formatDateTime";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,8 +15,9 @@ type Props = {
 
 export default function NotificationDetailsScreen({ id }: Props) {
   const [identificationAddress, setIdentificationAddress] = useState<Location.LocationGeocodedAddress[] | null>(null);
+  const queryClient = useQueryClient();
 
-  const { data } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["singleNotif"],
     queryFn: () => getNotification(id),
     enabled: !!id,
@@ -31,8 +32,23 @@ export default function NotificationDetailsScreen({ id }: Props) {
   useEffect(() => {
     const getAddress = async () => {
       try {
-        if (!identificationRecord?.latitude || !identificationRecord.longitude) return;
+        // Check location permission
+        let permission = await Location.getForegroundPermissionsAsync();
 
+        if (permission.status !== Location.PermissionStatus.GRANTED) {
+          permission = await Location.getForegroundPermissionsAsync();
+        }
+
+        // I user denied the permission
+        if (permission.status !== Location.PermissionStatus.GRANTED) {
+          Alert.alert("Location Permission Required", "Please allow location access the identification address.", [
+            { text: "Cancel", style: "cancel" },
+            { text: "Open Settings", onPress: () => Linking.openSettings() },
+          ]);
+          return null;
+        }
+
+        if (!identificationRecord?.latitude || !identificationRecord.longitude) return;
         const address = await Location.reverseGeocodeAsync({
           latitude: identificationRecord?.latitude,
           longitude: identificationRecord?.longitude,
@@ -40,18 +56,27 @@ export default function NotificationDetailsScreen({ id }: Props) {
 
         setIdentificationAddress(address);
       } catch (e) {
-        alert("Error getting address");
+        console.error();
+        alert("Failed to get address");
       }
     };
 
     getAddress();
-  }, [identificationRecord]);
+  }, [identificationRecord, data]);
+
+  const refreshPage = () => {
+    queryClient.invalidateQueries({ queryKey: ["singleNotif"] });
+    queryClient.invalidateQueries({ queryKey: ["identificationRecord"] });
+  };
 
   return (
     <>
       <Stack.Screen options={{ title: "Notifications" }} />
       <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
-        <ScrollView style={[styles.main]} contentContainerStyle={{ gap: 32, paddingBottom: 64 }}>
+        <ScrollView
+          style={[styles.main]}
+          contentContainerStyle={{ gap: 32, paddingBottom: 64 }}
+          refreshControl={<RefreshControl refreshing={recordLoading || isPending} onRefresh={refreshPage} />}>
           <View>
             <Text style={{ fontSize: 18, fontWeight: 600 }}>{data?.title}</Text>
             <View style={{ flexDirection: "row", columnGap: 8 }}>
