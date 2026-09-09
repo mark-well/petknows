@@ -78,27 +78,8 @@ export function useRegisterPet() {
         console.log(`[${index}]: Embedding succesfully generated`);
 
         uploads.push({ uploadedImage, embedding });
-        // return { uploadedImage, embedding };
       }
       return { folderId, uploads };
-
-      // const uploads = await Promise.all(
-      //   selectedImage.map(async (asset, index) => {
-      //     // const [uploadedImage, embedding] = await Promise.all([
-      //     //   uploadPetImage(asset, `${folderId}/${index}`),
-      //     //   getEmbedding(asset),
-      //     // ]);
-      //     // return { uploadedImage, embedding };
-      //     const uploadedImage = await uploadPetImage(asset, `${folderId}/${index}`);
-      //     uploadPaths.push(uploadedImage.path);
-      //     console.log(`[${index}]: Uploaded - ${uploadedImage.path}`);
-
-      //     const embedding = await getEmbedding(asset);
-      //     console.log(`[${index}]: Getting embedding`);
-
-      //     return { uploadedImage, embedding };
-      //   }),
-      // );
     } catch (e) {
       console.error("Failed to upload pet images: ", e);
       console.log("Cleanup array:", uploadPaths);
