@@ -60,6 +60,9 @@ export default function Login() {
           </Link>
         </Text>
       </View>
+      <Link href={"/forgot-password"} style={{ color: "#000" }}>
+        Forgot Password?
+      </Link>
     </View>
   );
 }

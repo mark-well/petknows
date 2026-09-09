@@ -1,7 +1,10 @@
 import AuthProvider, { useAuth } from "@/providers/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import * as Linking from "expo-linking";
+import { router, Stack } from "expo-router";
+import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { supabase } from "../../lib/supabase";
 
 export function RootLayoutNav() {
   const { claims } = useAuth();
@@ -21,6 +24,7 @@ export function RootLayoutNav() {
       {/* Available to everyone */}
       <Stack.Screen name="pet-identification/live-camera" options={{ title: "Live Camera" }} />
       <Stack.Screen name="pet-identification/result" options={{ title: "Identification Results" }} />
+      <Stack.Screen name="reset-password" options={{ title: "Set New Password" }} />
     </Stack>
   );
 }
@@ -28,6 +32,30 @@ export function RootLayoutNav() {
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
+  useEffect(() => {
+    const handleUrl = async (url: string | null) => {
+      if (!url) return;
+      const parsed = Linking.parse(url);
+      // Supabase puts tokens in the URL fragment: #access_token=...&refresh_token=...&type=recovery
+      const fragment = url.split("#")[1];
+      if (!fragment) return;
+
+      const params = new URLSearchParams(fragment);
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+      const type = params.get("type");
+
+      if (type === "recovery" && access_token && refresh_token) {
+        await supabase.auth.setSession({ access_token, refresh_token });
+        router.push("/reset-password");
+      }
+    };
+
+    Linking.getInitialURL().then(handleUrl);
+    const sub = Linking.addEventListener("url", (e) => handleUrl(e.url));
+    return () => sub.remove();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>

@@ -15,6 +15,8 @@ type AuthContextType = {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUp: (signupForm: SignupFormType) => Promise<void>;
   signOut: () => void;
+  sendPasswordResetEmail: (email: string) => Promise<boolean>;
+  updatePassword: (newPassword: string) => Promise<boolean>;
   userProfile: UserProfile | undefined;
 };
 
@@ -141,8 +143,51 @@ export default function AuthProvider({ children }: Props) {
     }
   };
 
+  // inside AuthProvider, alongside signInWithEmail
+  const sendPasswordResetEmail = async (email: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "petknows://reset-password",
+      });
+      if (error) {
+        Alert.alert("Error", "Could not send reset email. Please try again.");
+        console.error("Reset email error:", error);
+        return false;
+      }
+      return true;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        Alert.alert("Error", "Could not update password.");
+        console.error("Update password error:", error);
+        return false;
+      }
+      return true;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ claims, loading, signInWithEmail, userProfile, signOut, signUp }}>
+    <AuthContext.Provider
+      value={{
+        claims,
+        loading,
+        signInWithEmail,
+        userProfile,
+        signOut,
+        signUp,
+        sendPasswordResetEmail,
+        updatePassword,
+      }}>
       {children}
     </AuthContext.Provider>
   );
