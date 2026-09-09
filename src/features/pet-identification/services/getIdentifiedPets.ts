@@ -14,7 +14,7 @@ export default async function getIdentifiedPets(petIds: string[] | null) {
       status,
       created_at,
       avatar_url,
-      registered_at:place_of_registration(name),
+      registered_at:place_of_registration(office_name),
       owner:profiles(
         id,
         public_id,

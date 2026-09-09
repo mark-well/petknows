@@ -165,7 +165,7 @@ export default function PetCard({ pet, location }: Props) {
 
             <View style={styles.attributeContainer}>
               <Text style={styles.attributeTitle}>Registered at</Text>
-              <Text style={styles.attribute}>{pet.registered_at?.name}</Text>
+              <Text style={styles.attribute}>{pet.registered_at?.office_name}</Text>
               <View style={styles.line}></View>
             </View>
 
