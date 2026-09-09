@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 import { File } from "expo-file-system";
 import * as Location from "expo-location";
@@ -103,12 +103,37 @@ export default function ResultScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 32 }}>
-        <View style={{ flex: 1, padding: 16 }}>
+        <View style={{ flex: 1, padding: 16, borderBottomWidth: 1, borderColor: "hsl(19 100% 61%)" }}>
           <Image source={{ uri: imageUri }} style={styles.originalPet} resizeMode="cover" />
         </View>
         {loading ? (
           <View>
             <Text>Loading...</Text>
+          </View>
+        ) : combinedMatches.length === 0 ? (
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginHorizontal: 16,
+              padding: 16,
+              gap: 16,
+              borderRadius: 8,
+              backgroundColor: "hsl(0, 100%, 68%)",
+              boxShadow: "rgba(0, 0, 0, 0.10) 0px 4px 8px",
+            }}>
+            <View style={{ alignItems: "center" }}>
+              <Ionicons
+                name="information"
+                size={20}
+                color="hsl(0, 100%, 68%)"
+                style={{ padding: 6, backgroundColor: "#fff", borderRadius: 50 }}
+              />
+              <Text style={{ fontWeight: "600", fontSize: 18, color: "#fff" }}>Cannot find pet</Text>
+            </View>
+            <Text style={{ fontSize: 14, textAlign: "center", color: "#fff" }}>
+              No record similar to this pet has been found in the database.
+            </Text>
           </View>
         ) : (
           <ScrollView horizontal style={{ flex: 1 }}>
