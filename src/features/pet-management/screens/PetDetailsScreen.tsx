@@ -1,14 +1,17 @@
 import ActivityStatus from "@/components/ActivityStatus";
 import LoadingModal from "@/components/LoadingModal";
 import CustomButton from "@/shared/components/CustomButton";
+import CutomIconButton from "@/shared/components/CustomIconButton";
 import { Host, Picker } from "@expo/ui";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -24,6 +27,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import getPetImages from "../api/getPetImages";
 import getSinglePet from "../api/getSinglePet";
 import PetStatusBadge from "../components/PetStatusBadge";
+import useDeletePet from "../hooks/useDeletePet";
 import useUpdatePet from "../hooks/useUpdatePet";
 import { PetStatues } from "../types";
 
@@ -38,6 +42,9 @@ export default function PetDetailsScreen({ petId }: Props) {
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [updateFailed, setUpdateFailed] = useState<boolean>(false);
   const petStatuses: PetStatues[] = ["registered", "missing"];
+  const deletePetHook = useDeletePet();
+  const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+  const [deleteFailed, setDeleteFailed] = useState<boolean>(false);
 
   // Get the pet
   const { data: pet, isPending: petLoading } = useQuery({
@@ -91,6 +98,39 @@ export default function PetDetailsScreen({ petId }: Props) {
     )();
   };
 
+  const handleDeletePet = async () => {
+    if (!pet) throw new Error("No pet");
+    Alert.alert(
+      "Delete pet",
+      "Are you sure you want to delete this pet? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {
+            return;
+          },
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            deletePetHook.mutate(new Set<string>([pet?.id]), {
+              onSuccess: () => {
+                setDeleteSuccess(true);
+                queryClient.invalidateQueries({ queryKey: ["getPet"] });
+              },
+              onError: () => {
+                setDeleteFailed(true);
+              },
+            });
+          },
+          style: "cancel",
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   if (petLoading) return <Text>Loading...</Text>;
   if (!pet) return <Text>Pet not found!</Text>;
   return (
@@ -112,6 +152,26 @@ export default function PetDetailsScreen({ petId }: Props) {
           title="Update Failed"
           message="Pet details failed to be updated."
           onClose={() => setUpdateFailed(false)}
+        />
+      )}
+      {deletePetHook.isPending && <LoadingModal title="Deleting..." message="Deleting your pet, please wait." />}
+      {deleteSuccess && (
+        <ActivityStatus
+          status="success"
+          title="Delete Success"
+          message="Your pet has been successfully deleted."
+          onClose={() => {
+            setDeleteSuccess(false);
+            router.back();
+          }}
+        />
+      )}
+      {deleteFailed && (
+        <ActivityStatus
+          status="failed"
+          title="Delete Failed"
+          message="Failed to delete pet."
+          onClose={() => setDeleteFailed(false)}
         />
       )}
       <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
@@ -190,6 +250,12 @@ export default function PetDetailsScreen({ petId }: Props) {
               <View style={style.petDetailsHeader}>
                 <Text style={{ fontSize: 20, fontWeight: 500, color: "hsl(0 0% 42%)" }}>Details</Text>
                 <View style={{ flexDirection: "row", gap: 16, justifyContent: "center", alignItems: "center" }}>
+                  <CutomIconButton
+                    style={{ backgroundColor: "hsl(0, 90%, 64%)", paddingHorizontal: 8 }}
+                    icon={<FontAwesome name="trash-o" size={18} color="#fff" />}
+                    onPress={handleDeletePet}>
+                    <Text style={{ color: "#fff" }}>Delete</Text>
+                  </CutomIconButton>
                   {editDetails && (
                     <CustomButton onPress={handleUpdate} style={{ paddingVertical: 4 }} disabled={updatePending}>
                       Update
@@ -349,7 +415,7 @@ export default function PetDetailsScreen({ petId }: Props) {
                   <Text style={style.petDetailsItemKey}>MAO:</Text>
                 </View>
                 <View style={style.petDetailsColumnValue}>
-                  <TextInput style={style.petDetailsItem} defaultValue={pet.mao?.name ?? ""} editable={false} />
+                  <TextInput style={style.petDetailsItem} defaultValue={pet.mao?.office_name ?? ""} editable={false} />
                 </View>
               </View>
             </View>

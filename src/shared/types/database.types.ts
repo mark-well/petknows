@@ -141,27 +141,30 @@ export type Database = {
           city_id: string | null
           created_at: string
           id: string
-          name: string | null
+          office_name: string
           province_id: string | null
-          status: string | null
+          public_id: string
+          status: Database["public"]["Enums"]["mao_status"] | null
         }
         Insert: {
           barangay_id?: string | null
           city_id?: string | null
           created_at?: string
           id?: string
-          name?: string | null
+          office_name: string
           province_id?: string | null
-          status?: string | null
+          public_id?: string
+          status?: Database["public"]["Enums"]["mao_status"] | null
         }
         Update: {
           barangay_id?: string | null
           city_id?: string | null
           created_at?: string
           id?: string
-          name?: string | null
+          office_name?: string
           province_id?: string | null
-          status?: string | null
+          public_id?: string
+          status?: Database["public"]["Enums"]["mao_status"] | null
         }
         Relationships: [
           {
@@ -469,6 +472,7 @@ export type Database = {
       }
     }
     Enums: {
+      mao_status: "active" | "inactive"
       pet_status: "registered" | "missing"
       sex: "Male" | "Female" | "Other"
       user_roles: "user" | "admin" | "super_admin"
@@ -599,6 +603,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      mao_status: ["active", "inactive"],
       pet_status: ["registered", "missing"],
       sex: ["Male", "Female", "Other"],
       user_roles: ["user", "admin", "super_admin"],
