@@ -138,31 +138,31 @@ export type Database = {
       mao: {
         Row: {
           barangay_id: string | null
-          city_id: string | null
+          city_id: string
           created_at: string
           id: string
           office_name: string
-          province_id: string | null
+          province_id: string
           public_id: string
           status: Database["public"]["Enums"]["mao_status"] | null
         }
         Insert: {
           barangay_id?: string | null
-          city_id?: string | null
+          city_id: string
           created_at?: string
           id?: string
           office_name: string
-          province_id?: string | null
+          province_id: string
           public_id?: string
           status?: Database["public"]["Enums"]["mao_status"] | null
         }
         Update: {
           barangay_id?: string | null
-          city_id?: string | null
+          city_id?: string
           created_at?: string
           id?: string
           office_name?: string
-          province_id?: string | null
+          province_id?: string
           public_id?: string
           status?: Database["public"]["Enums"]["mao_status"] | null
         }
@@ -431,6 +431,38 @@ export type Database = {
             columns: ["province_id"]
             isOneToOne: false
             referencedRelation: "address_province"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vaccination: {
+        Row: {
+          created_at: string
+          id: string
+          pet_id: string
+          type: string | null
+          vaccination_date: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pet_id: string
+          type?: string | null
+          vaccination_date?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pet_id?: string
+          type?: string | null
+          vaccination_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vaccination_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
             referencedColumns: ["id"]
           },
         ]

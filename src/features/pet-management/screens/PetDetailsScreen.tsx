@@ -1,5 +1,6 @@
 import ActivityStatus from "@/components/ActivityStatus";
 import LoadingModal from "@/components/LoadingModal";
+import VaccineCard from "@/features/pet-vaccination/components/VaccineCard";
 import CustomButton from "@/shared/components/CustomButton";
 import CutomIconButton from "@/shared/components/CustomIconButton";
 import { Host, Picker } from "@expo/ui";
@@ -29,6 +30,7 @@ import getSinglePet from "../api/getSinglePet";
 import PetStatusBadge from "../components/PetStatusBadge";
 import useDeletePet from "../hooks/useDeletePet";
 import useUpdatePet from "../hooks/useUpdatePet";
+import useVaccination from "../hooks/useVaccination";
 import { PetStatues } from "../types";
 
 type Props = {
@@ -38,6 +40,7 @@ type Props = {
 export default function PetDetailsScreen({ petId }: Props) {
   const queryClient = useQueryClient();
   const { control, reset, submit, handleSubmit, isPending: updatePending } = useUpdatePet(petId);
+  const { vaccineRecords, isPending: vaccineLoading } = useVaccination(petId);
   const [editDetails, setEditDetails] = useState<boolean>(false);
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [updateFailed, setUpdateFailed] = useState<boolean>(false);
@@ -417,6 +420,24 @@ export default function PetDetailsScreen({ petId }: Props) {
                 <View style={style.petDetailsColumnValue}>
                   <TextInput style={style.petDetailsItem} defaultValue={pet.mao?.office_name ?? ""} editable={false} />
                 </View>
+              </View>
+            </View>
+
+            {/* Vaccination */}
+            <View style={{ gap: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: "500", color: "hsl(19 100% 61%)" }}>Vaccination</Text>
+              <View style={{ gap: 12 }}>
+                {vaccineLoading ? (
+                  <Text>Loading...</Text>
+                ) : (
+                  vaccineRecords?.map((vaccine) => (
+                    <VaccineCard
+                      key={vaccine.id}
+                      date={vaccine.vaccination_date ?? "N/A"}
+                      vaccine_type={vaccine.type ?? "N/A"}
+                    />
+                  ))
+                )}
               </View>
             </View>
           </KeyboardAwareScrollView>
