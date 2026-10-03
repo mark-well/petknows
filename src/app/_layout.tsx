@@ -25,6 +25,7 @@ export function RootLayoutNav() {
       <Stack.Screen name="pet-identification/live-camera" options={{ title: "Live Camera" }} />
       <Stack.Screen name="pet-identification/result" options={{ title: "Identification Results" }} />
       <Stack.Screen name="reset-password" options={{ title: "Set New Password" }} />
+      <Stack.Screen name="privacy-policy" options={{ title: "Data Privacy Notice" }} />
     </Stack>
   );
 }

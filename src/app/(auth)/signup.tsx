@@ -5,7 +5,9 @@ import { SelectListType } from "@/features/pet-registration/types";
 import { useAuth } from "@/providers/AuthContext";
 import useAddresses from "@/shared/hooks/useAddresses";
 import { SignupFormType, UserSex } from "@/shared/types";
+import { Checkbox, Host } from "@expo/ui";
 import Ionicons from "@react-native-vector-icons/ionicons";
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
@@ -39,6 +41,7 @@ export default function Signup() {
   const mappedUserSex: SelectListType[] = userSex.map((s) => ({ key: s, value: s }));
   const [passwordNotMatch, setPasswordNotMatch] = useState<boolean>(false);
   const [invalidPhone, setInvalidPhone] = useState<boolean>(false);
+  const [acceptPrivacyPolicy, setAcceptPrivacyPolicy] = useState<boolean>(false);
 
   useEffect(() => {
     setMappedProvince(provinces?.map((p) => ({ key: p.id, value: p.name ?? "" })) ?? []);
@@ -344,8 +347,21 @@ export default function Signup() {
         </View>
 
         {/* Signup Button */}
-        <View style={{ flex: 1, marginBottom: 40 }}>
-          <Button onPress={handleSignup} disabled={loading}>
+        <View style={{ flex: 1, marginBottom: 40, gap: 16 }}>
+          <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+            <Host matchContents>
+              <Checkbox value={acceptPrivacyPolicy} onValueChange={setAcceptPrivacyPolicy} />
+            </Host>
+            <Text style={{ flexShrink: 1, fontSize: 14 }}>
+              I have read the{" "}
+              <Link href={"/privacy-policy"} style={{ textDecorationLine: "underline", color: "#0000ff" }}>
+                Data Privacy Notice
+              </Link>{" "}
+              and consent to the secure collection of my data for this academic study.
+            </Text>
+          </View>
+
+          <Button onPress={handleSignup} disabled={loading || !acceptPrivacyPolicy}>
             Signup
           </Button>
         </View>
